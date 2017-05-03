@@ -17,7 +17,8 @@ app.enable('verbose errors')
 
 app.use(logger('dev'))
 app.use(bodyParser.json())
-app.use(routes)
+
+app.use('/', routes)
 
 app.use('*',function (req, res, next) {
   console.log('star routes')
