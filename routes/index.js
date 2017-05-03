@@ -1,12 +1,12 @@
 var express = require('express')
 var router  = express.Router()
 
-
 var gameId
 
 // Handle POST request to '/start'
 router.post('/start', function (req, res) {
-    console.log('body: ' + req.body)
+  console.log('body: %s', req.body)
+
   // NOTE: Do something here to start the game
   if (!req.body) return res.sendStatus(400)
   gameId = req.body['game']
@@ -62,6 +62,8 @@ router.post('/start', function (req, res) {
 //     "gold": 2
 // }
 router.post('/move', function (req, res) {
+  console.log('body: %s', req.body)
+
   if (!req.body) return res.sendStatus(400)
 
   // NOTE: Do something here to generate your move
@@ -74,6 +76,9 @@ router.post('/move', function (req, res) {
 
   return res.json(data)
 })
+
+module.exports = router
+
 /*
     print data
     print '##################'
@@ -239,4 +244,3 @@ def init(data):
     return mysnake, grid
 
 */
-module.exports = router
