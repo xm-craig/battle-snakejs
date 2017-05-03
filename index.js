@@ -6,8 +6,9 @@
 var bodyParser = require('body-parser')
 var express = require('express')
 var logger = require('morgan')
+
 var app = express()
-var routes = require('./routes')
+var router = require('./routes')
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
@@ -17,11 +18,10 @@ app.enable('verbose errors')
 
 app.use(logger('dev'))
 app.use(bodyParser.json())
+app.use('/', router)
 
-app.use('/', routes)
-
-app.use('*',function (req, res, next) {
-  console.log('star routes')
+app.use('*', function (req, res, next) {
+  console.log('*** using star route ***')
   if (req.url === '/favicon.ico') {
     // Short-circuit favicon requests
     res.set({'Content-Type': 'image/x-icon'})
@@ -40,7 +40,7 @@ app.use('*',function (req, res, next) {
 
 // 404 handler middleware, respond with JSON only
 app.use(function (err, req, res, next) {
-  console.log('404 error')
+  console.log('*** 404 error')
   if (err.status !== 404) {
     return next(err)
   }

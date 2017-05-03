@@ -1,7 +1,7 @@
-var express = require('express')
-var router  = express.Router()
+var express = require('express');
+var router  = express.Router();
 
-var gameId
+var gameId;
 
 // Handle POST request to '/start'
 router.post('/start', function (req, res) {
@@ -20,6 +20,15 @@ router.post('/start', function (req, res) {
     taunt: "Let's do thisss thang!",
     head_type: "tongue",
     tail_type: "freckled"
+  }
+
+  return res.json(data)
+})
+
+router.post('/end', function (req, res) {
+  // Response data
+  var data = {
+    taunt: 'Outta my way, snake!'
   }
 
   return res.json(data)
@@ -77,7 +86,7 @@ router.post('/move', function (req, res) {
   return res.json(data)
 })
 
-module.exports = router
+module.exports = router;
 
 /*
     print data
