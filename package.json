@@ -1,10 +1,10 @@
 {
-  "name": "battlesnake-node",
+  "name": "battle-snakejs",
   "description": "A simple BattleSnake AI written in Javascript for NodeJS",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
-  "author": "Sendwithus",
-  "repository": "https://github.com/sendwithus/battlesnake-node",
+  "author": "xmcraig",
+  "repository": "https://github.com/xmcraig/battle-snakejs",
   "licenses": [
     {
       "type": "WTFPL",
