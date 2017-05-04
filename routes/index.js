@@ -19,7 +19,7 @@ var gameId;
 
 // Handle POST request to '/start'
 router.post('/start', function (req, res) {
-  console.log('body: %s', req.body)
+  console.log(req.body)
 
   // NOTE: Do something here to start the game
   if (!req.body) return res.sendStatus(400)
@@ -85,7 +85,7 @@ router.post('/end', function (req, res) {
 //     "gold": 2
 // }
 router.post('/move', function (req, res) {
-  console.log(req.body)
+  //console.log(req.body)
 
   if (!req.body) return res.sendStatus(400)
 
@@ -99,13 +99,16 @@ router.post('/move', function (req, res) {
 
   // initialize the grid
   var grid = init(mysnek, req.body);
+  console.log("*** The Grid *** ")
+  console.log(grid)
 
   // search for shortest path to food
+  console.log("*** food check start *** ")
   var path;
   food.forEach(function(pellet) {
       var tentative = astar.search(grid, snek_head, pellet);
       if (!tentative) {
-          console.log("no path to food pellet")
+          console.log("**** no path to food pellet")
           return;
       }
 
@@ -124,6 +127,7 @@ router.post('/move', function (req, res) {
 
       path = tentative;
   })
+  console.log("***food check complete *** ")
 
   // if there are no paths to food pellets then chase our tail
   if (!path) {
@@ -196,7 +200,7 @@ function direction(from_cell, to_cell) {
     return 'down'
 }
 
-function matrix( rows, cols, defaultValue) {
+function matrix(rows, cols, defaultValue) {
   var arr = [];
   // Creates all lines:
   for(var i=0; i < rows; i++){
