@@ -154,7 +154,7 @@ function init(mysnek, data) {
   var snakes = data.snakes;
   var food = data.food;
 
-  var grid = [ for (n of Array(data['heigth'])) [ for (m of Array(data['width']) DEFAULT ]];
+  var grid = matrix(data['heigth'],data['width'],DEFAULT);
 
   if (snakes.length) {
       snakes.forEach(function(snek) {
@@ -194,6 +194,22 @@ function direction(from_cell, to_cell) {
         return 'up'
 
     return 'down'
+}
+
+function matrix( rows, cols, defaultValue) {
+  var arr = [];
+  // Creates all lines:
+  for(var i=0; i < rows; i++){
+      // Creates an empty line
+      arr.push([]);
+      // Adds cols to the empty line:
+      arr[i].push( new Array(cols));
+      for(var j=0; j < cols; j++){
+        // Initializes:
+        arr[i][j] = defaultValue;
+      }
+  }
+  return arr;
 }
 
 module.exports = router;
