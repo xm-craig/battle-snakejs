@@ -106,7 +106,7 @@ router.post('/move', function (req, res) {
       var tentative = astar.search(grid, snek_head, pellet);
       if (!tentative) {
           console.log("no path to food pellet")
-          continue;
+          return;
       }
 
       // check that there are no other snake heads closer
@@ -115,12 +115,12 @@ router.post('/move', function (req, res) {
       var dead = false
       snakes.forEach(function(enemy) {
           if (enemy.name == SNEK_NAME)
-              continue;
+              return;
           if (path_length > distance(enemy['coords'][0], pellet))
               dead = true;
       })
       if (dead)
-          continue;
+          return;
 
       path = tentative;
   })
