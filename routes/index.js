@@ -1,6 +1,20 @@
+var _       = require('underscore');
 var express = require('express');
 var router  = express.Router();
 
+var SNEK_BUFFER = 3;
+
+// Grid Weights
+var DEFAULT = 1; // Safe path
+var SNAKE = 0;   // Avoid
+var WALL = 0;    // Avoid
+var FOOD = 3;    // Important
+var GOLD = 4;    // More important
+var SAFTEY = 1;  // 
+var SNEK_NAME = 'FriskySnake';
+
+
+var snakeId;
 var gameId;
 
 // Handle POST request to '/start'
@@ -13,7 +27,7 @@ router.post('/start', function (req, res) {
 
   // Response data
   var data = {
-    color: "#DFFF00",
+    color: "#DDFF00",
     secondary_color: "#00D5FB",
     name: "FriskySnake",
     head_url: "http://www.blogcdn.com/www.aoltv.com/media/2007/04/fdrisksyss.gif",
@@ -71,20 +85,116 @@ router.post('/end', function (req, res) {
 //     "gold": 2
 // }
 router.post('/move', function (req, res) {
-  console.log('body: %s', req.body)
+  console.log(req.body)
 
   if (!req.body) return res.sendStatus(400)
 
-  // NOTE: Do something here to generate your move
+  var snakes = req.body.snakes;
+  var food = req.body.food;
+
+  // find our snake
+  var mysnek = _.find(snakes, function(snake) { return snake.namme == SNEK_NAME; });
+  var mysnek_head = mysnek.coords[0];
+  var mysnek_coords = mysnek.coords;
+
+  // initialize the grid
+  var grid = init(mysnek, req.body);
+
+  // search for shortest path to food
+  var path;
+  food.forEach(function(pellet) {
+      var tentative = astar.search(grid, snek_head, pellet);
+      if (!tentative) {
+          console.log("no path to food pellet")
+          continue;
+      }
+
+      // check that there are no other snake heads closer
+      var path_length = _.size(tentative)
+      var snek_length = _.size(mysnek_coords) + 1
+      var dead = false
+      snakes.forEach(function(enemy) {
+          if (enemy.name == SNEK_NAME)
+              continue;
+          if (path_length > distance(enemy['coords'][0], pellet))
+              dead = true;
+      })
+      if (dead)
+          continue;
+
+      path = tentative;
+  })
+
+  // if there are no paths to food pellets then chase our tail
+  if (!path) {
+      console.log('no path to any food');
+      path = a_star(mysnek_head, mysnek_coords[-1], grid, mysnek_coords);
+  }
+
+  // if there's no path to our tail then all is lost!
+  var despair = !path || !(_.size(path) > 1);
+  if (despair) {
+      console.log('no path to tail!');
+      path =[mysnek_head[0]+1,mysnek_head[1]];
+  }
+
+  console.log(path);
+  console.log('##################');
 
   // Response data
   var data = {
-    move: 'up', // one of: ['up','down','left','right']
-    taunt: 'Outta my way, snake!', // optional, but encouraged!
+      move: direction(path[0], path[1]),
+      taunt: 'Outta my way, snake!'
   }
 
-  return res.json(data)
+  return res.json(data);
 })
+
+function init(mysnek, data) {
+  var snakes = data.snakes;
+  var food = data.food;
+
+  var grid = [ for (n of Array(data['heigth'])) [ for (m of Array(data['width']) DEFAULT ]];
+
+  if (snakes.length) {
+      snakes.forEach(function(snek) {
+        snek['coords'].forEach(function(coord) {
+          grid[coord[0]][coord[1]] = SNAKE;
+        })
+      })
+  }
+  if (food.length) {
+      food.forEach(function(f) {
+          grid[f[0]][f[1]] = FOOD;
+      })
+  }
+
+  return grid;
+}
+
+/**
+ * Distance between two coordinates in a matrix:
+ *   [1,1] and [2,2]
+ */
+function distance(p, q) {
+    var dx = Math.abs(p[0] - q[0]);
+    var dy = Math.abs(p[1] - q[1]);
+    return dx + dy;
+}
+
+function direction(from_cell, to_cell) {
+    var dx = to_cell[0] - from_cell[0];
+    var dy = to_cell[1] - from_cell[1];
+
+    if (dx == 1)
+        return 'right'
+    else if (dx == -1)
+        return 'left'
+    else if (dy == -1)
+        return 'up'
+
+    return 'down'
+}
 
 module.exports = router;
 

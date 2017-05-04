@@ -21,7 +21,6 @@ app.use(bodyParser.json())
 app.use('/', router)
 
 app.use('*', function (req, res, next) {
-  console.log('*** using star route ***')
   if (req.url === '/favicon.ico') {
     // Short-circuit favicon requests
     res.set({'Content-Type': 'image/x-icon'})
@@ -40,7 +39,6 @@ app.use('*', function (req, res, next) {
 
 // 404 handler middleware, respond with JSON only
 app.use(function (err, req, res, next) {
-  console.log('*** 404 error')
   if (err.status !== 404) {
     return next(err)
   }
