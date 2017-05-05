@@ -85,7 +85,7 @@ router.post('/end', function (req, res) {
 //     "gold": 2
 // }
 router.post('/move', function (req, res) {
-  //console.log(req.body)
+  console.log(req.body)
 
   if (!req.body) return res.sendStatus(400)
 
