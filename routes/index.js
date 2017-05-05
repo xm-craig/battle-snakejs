@@ -1,4 +1,5 @@
 var _       = require('underscore');
+var astar   = require('./astar');
 var express = require('express');
 var router  = express.Router();
 
@@ -85,33 +86,33 @@ router.post('/end', function (req, res) {
 //     "gold": 2
 // }
 router.post('/move', function (req, res) {
-  console.log(req.body)
+  //console.log(req.body)
 
   if (!req.body) return res.sendStatus(400)
 
   var snakes = req.body['snakes'];
   var food = req.body['food'];
 
-  console.log(snakes)
-  console.log(food)
-  console.log("*** using underscore *** ")
+  //console.log(snakes)
+  //console.log(food)
+  //console.log("*** using underscore *** ")
   // find our snake
   var mysnek = _.find(snakes, function(snake) { return snake.name == SNEK_NAME; });
-  console.log("*** my snek *** ")
-  console.log(mysnek)
+  //console.log("*** my snek *** ")
+  //console.log(mysnek)
   var mysnek_head = mysnek.coords[0];
   var mysnek_coords = mysnek.coords;
 
   // initialize the grid
   var grid = init(mysnek, req.body);
-  console.log("*** The Grid *** ")
-  console.log(grid)
+  //console.log("*** The Grid *** ")
+  //console.log(grid)
 
   // search for shortest path to food
-  console.log("*** food check start *** ")
+  //console.log("*** food check start *** ")
   var path;
   food.forEach(function(pellet) {
-      var tentative = astar.search(grid, snek_head, pellet);
+     var tentative = astar.search(grid, mysnek_head, pellet);
       if (!tentative) {
           console.log("**** no path to food pellet")
           return;
@@ -119,7 +120,7 @@ router.post('/move', function (req, res) {
 
       // check that there are no other snake heads closer
       var path_length = _.size(tentative)
-      var snek_length = _.size(mysnek_coords) + 1
+      var mysnek_length = _.size(mysnek_coords) + 1
       var dead = false
       snakes.forEach(function(enemy) {
           if (enemy.name == SNEK_NAME)
@@ -132,7 +133,7 @@ router.post('/move', function (req, res) {
 
       path = tentative;
   })
-  console.log("***food check complete *** ")
+  //console.log("***food check complete *** ")
 
   // if there are no paths to food pellets then chase our tail
   if (!path) {
@@ -148,12 +149,12 @@ router.post('/move', function (req, res) {
       path =[mysnek_head[0]+1,mysnek_head[1]];
   }
 
-  console.log(path);
-  console.log('##################');
+  console.log('######## THE CHOSEN PATH ##########');
+  console.log(path[0]);
 
   // Response data
   var data = {
-      move: direction(path[0], path[1]),
+      move: direction(path[0].x, path[0].y),
       taunt: 'Outta my way, snake!'
   }
 
@@ -164,16 +165,18 @@ function init(mysnek, data) {
   var snakes = data.snakes;
   var food = data.food;
 
-  var grid = matrix(data['heigth'],data['width'],DEFAULT);
+  var grid = matrix(data.height, data.width, DEFAULT);
+  console.log('####### NEW GRID ###########');
+  console.log(grid)
 
   if (snakes.length) {
-      console.log('##################');
+      console.log('####### SNAKES ###########');
       console.log(snakes)
       snakes.forEach(function(snek) {
-        console.log('##################');
+        console.log('####### A SNAKE ###########');
         console.log(snek)
         snek['coords'].forEach(function(coord) {
-          console.log('##################');
+          console.log('######## COORDS ##########');
           console.log(coord)
           grid[coord[0]][coord[1]] = SNAKE;
         })
@@ -214,13 +217,10 @@ function direction(from_cell, to_cell) {
 }
 
 function matrix(rows, cols, defaultValue) {
-  var arr = [];
-  // Creates all lines:
+  var arr = new Array(rows);
   for(var i=0; i < rows; i++){
-      // Creates an empty line
-      arr.push([]);
       // Adds cols to the empty line:
-      arr[i].push( new Array(cols));
+      arr[i] = new Array(cols);
       for(var j=0; j < cols; j++){
         // Initializes:
         arr[i][j] = defaultValue;
