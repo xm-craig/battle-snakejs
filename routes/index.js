@@ -92,6 +92,7 @@ router.post('/move', function (req, res) {
   var snakes = req.body.snakes;
   var food = req.body.food;
 
+  console.log("*** using underscore *** ")
   // find our snake
   var mysnek = _.find(snakes, function(snake) { return snake.namme == SNEK_NAME; });
   var mysnek_head = mysnek.coords[0];
@@ -137,6 +138,7 @@ router.post('/move', function (req, res) {
 
   // if there's no path to our tail then all is lost!
   var despair = !path || !(_.size(path) > 1);
+
   if (despair) {
       console.log('no path to tail!');
       path =[mysnek_head[0]+1,mysnek_head[1]];
@@ -161,13 +163,16 @@ function init(mysnek, data) {
   var grid = matrix(data['heigth'],data['width'],DEFAULT);
 
   if (snakes.length) {
+      console.log(snakes)
       snakes.forEach(function(snek) {
+        console.log(snek)
         snek['coords'].forEach(function(coord) {
           grid[coord[0]][coord[1]] = SNAKE;
         })
       })
   }
   if (food.length) {
+      console.log(food)
       food.forEach(function(f) {
           grid[f[0]][f[1]] = FOOD;
       })
