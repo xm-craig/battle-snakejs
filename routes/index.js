@@ -89,14 +89,14 @@ router.post('/move', function (req, res) {
 
   if (!req.body) return res.sendStatus(400)
 
-  var snakes = req.body.snakes;
-  var food = req.body.food;
+  var snakes = req.body['snakes'];
+  var food = req.body['food'];
 
   console.log(snakes)
   console.log(food)
   console.log("*** using underscore *** ")
   // find our snake
-  var mysnek = _.find(snakes, function(snake) { return snake.namme == SNEK_NAME; });
+  var mysnek = _.find(snakes, function(snake) { return snake.name == SNEK_NAME; });
   console.log(mysnek)
   var mysnek_head = mysnek.coords[0];
   var mysnek_coords = mysnek.coords;
