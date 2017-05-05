@@ -97,6 +97,7 @@ router.post('/move', function (req, res) {
   console.log("*** using underscore *** ")
   // find our snake
   var mysnek = _.find(snakes, function(snake) { return snake.name == SNEK_NAME; });
+  console.log("*** my snek *** ")
   console.log(mysnek)
   var mysnek_head = mysnek.coords[0];
   var mysnek_coords = mysnek.coords;
@@ -166,10 +167,14 @@ function init(mysnek, data) {
   var grid = matrix(data['heigth'],data['width'],DEFAULT);
 
   if (snakes.length) {
+      console.log('##################');
       console.log(snakes)
       snakes.forEach(function(snek) {
+        console.log('##################');
         console.log(snek)
         snek['coords'].forEach(function(coord) {
+          console.log('##################');
+          console.log(coord)
           grid[coord[0]][coord[1]] = SNAKE;
         })
       })
