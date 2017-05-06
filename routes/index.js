@@ -129,7 +129,7 @@ router.post('/move', function (req, res) {
       snakes.forEach(function(enemy) {
           if (enemy.name == SNEK_NAME)
               return;
-          if (path_length > distance(enemy['coords'][0], pellet))
+          if (path_length >= distance(enemy['coords'][0], pellet))
               dead = true;
       })
       if (dead)
