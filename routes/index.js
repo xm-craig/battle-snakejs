@@ -111,12 +111,16 @@ router.post('/move', function (req, res) {
   // search for shortest path to food
   //console.log("*** food check start *** ")
   var path;
+  var tentatives = new Array();
   food.forEach(function(pellet) {
      var tentative = astar.search(grid, mysnek_head, pellet);
       if (!tentative) {
           console.log("**** no path to food pellet")
           return;
       }
+
+      // save this for later
+      tentatives.push(tentative);
 
       // check that there are no other snake heads closer
       var path_length = _.size(tentative)
@@ -136,17 +140,23 @@ router.post('/move', function (req, res) {
   //console.log("***food check complete *** ")
 
   // if there are no paths to food pellets then chase our tail
+  var despair = false;
   if (!path) {
       console.log('no path to any food');
-      path = a_star(mysnek_head, mysnek_coords[-1], grid, mysnek_coords);
+      path = a_star(mysnek_head, mysnek_coords[mysnek_coords.length-1], grid, mysnek_coords);
+      despair = !path || !(_.size(path) > 1);
   }
 
-  // if there's no path to our tail then all is lost!
-  var despair = !path || !(_.size(path) > 1);
-
+  // if there's no path to our tail then we should pick the first 
   if (despair) {
       console.log('no path to tail!');
-      path =[mysnek_head[0]+1,mysnek_head[1]];
+      // if there are no paths to food pellets closest to us, pick the closest anyway
+      if (_.size(tentatives) > 0) {
+         console.log("*** picking a pellet closer to other snakes *** ")
+         path = tentatives[0];
+      } else {
+          path = [ {"x":(mysnek_head[0]+1),"y":mysnek_head[1]} ];
+      }
   }
 
   console.log('######## THE CHOSEN PATH ##########');
