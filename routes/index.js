@@ -143,7 +143,7 @@ router.post('/move', function (req, res) {
   var despair = false;
   if (!path) {
       console.log('no path to any food');
-      path = a_star(mysnek_head, mysnek_coords[mysnek_coords.length-1], grid, mysnek_coords);
+      path = astar.search(mysnek_head, mysnek_coords[mysnek_coords.length-1], grid, mysnek_coords);
       despair = !path || !(_.size(path) > 1);
   }
 
