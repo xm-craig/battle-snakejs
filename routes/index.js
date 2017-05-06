@@ -151,11 +151,12 @@ router.post('/move', function (req, res) {
 
   console.log('######## THE CHOSEN PATH ##########');
   console.log(path[0]);
+  console.log(direction(mysnek_head, [path[0].x, path[0].y]));
 
   // Response data
   var data = {
-      move: direction(path[0].x, path[0].y),
-      taunt: 'Outta my way, snake!'
+      move: direction(mysnek_head, [path[0].x, path[0].y]),
+      taunt: 'I am Killface!'
   }
 
   return res.json(data);
@@ -166,18 +167,10 @@ function init(mysnek, data) {
   var food = data.food;
 
   var grid = matrix(data.height, data.width, DEFAULT);
-  console.log('####### NEW GRID ###########');
-  console.log(grid)
 
   if (snakes.length) {
-      console.log('####### SNAKES ###########');
-      console.log(snakes)
       snakes.forEach(function(snek) {
-        console.log('####### A SNAKE ###########');
-        console.log(snek)
         snek['coords'].forEach(function(coord) {
-          console.log('######## COORDS ##########');
-          console.log(coord)
           grid[coord[0]][coord[1]] = SNAKE;
         })
       })
