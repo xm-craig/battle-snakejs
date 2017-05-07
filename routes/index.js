@@ -3,20 +3,17 @@ var astar   = require('./astar');
 var express = require('express');
 var router  = express.Router();
 
-var SNEK_BUFFER = 3;
-
 // Grid Weights
-var DEFAULT = 1; // Safe path
-var SNAKE = 0;   // Avoid
-var WALL = 0;    // Avoid
-var FOOD = 3;    // Important
-var GOLD = 4;    // More important
-var SAFTEY = 1;  // 
-var SNEK_NAME = 'FriskySnake';
+var GOLD   = 5;  // Most Important
+var FOOD   = 3;  // Important
+var SAFTEY = 1;  // Safe path
+var SNAKE  = 0;  // Avoid
+var WALL   = 0;  // Avoid
 
+var MY_NAME = 'FriskySnake';
 
-var snakeId;
-var gameId;
+// Previous Game state
+var gameState = {};
 
 // Handle POST request to '/start'
 router.post('/start', function (req, res) {
@@ -24,7 +21,7 @@ router.post('/start', function (req, res) {
 
   // NOTE: Do something here to start the game
   if (!req.body) return res.sendStatus(400)
-  gameId = req.body['game']
+  //gameId = req.body['game']
 
   // Response data
   var data = {
@@ -90,6 +87,7 @@ router.post('/move', function (req, res) {
 
   if (!req.body) return res.sendStatus(400)
 
+  var gameId = req.body['gameId'];
   var snakes = req.body['snakes'];
   var food = req.body['food'];
 
@@ -97,7 +95,7 @@ router.post('/move', function (req, res) {
   //console.log(food)
   //console.log("*** using underscore *** ")
   // find our snake
-  var mysnek = _.find(snakes, function(snake) { return snake.name == SNEK_NAME; });
+  var mysnek = _.find(snakes, function(snake) { return snake.name == MY_NAME; });
   //console.log("*** my snek *** ")
   //console.log(mysnek)
   var mysnek_head = mysnek.coords[0];
@@ -127,7 +125,7 @@ router.post('/move', function (req, res) {
       var mysnek_length = _.size(mysnek_coords) + 1
       var dead = false
       snakes.forEach(function(enemy) {
-          if (enemy.name == SNEK_NAME)
+          if (enemy.name == MY_NAME)
               return;
           if (path_length >= distance(enemy['coords'][0], pellet))
               dead = true;
@@ -161,11 +159,15 @@ router.post('/move', function (req, res) {
 
   console.log('######## THE CHOSEN PATH ##########');
   console.log(path[0]);
-  console.log(direction(mysnek_head, [path[0].x, path[0].y]));
 
+  var nextDirection = direction(mysnek_head, [path[0].x, path[0].y]);
+  console.log(nextDirection);
+
+  // record the move for next time
+  gameState[gameId] = nextDirection;
   // Response data
   var data = {
-      move: direction(mysnek_head, [path[0].x, path[0].y]),
+      move: nextDirection,
       taunt: 'I am Killface!'
   }
 
@@ -173,10 +175,11 @@ router.post('/move', function (req, res) {
 })
 
 function init(mysnek, data) {
+  console.log(req.body)
   var snakes = data.snakes;
   var food = data.food;
 
-  var grid = matrix(data.height, data.width, DEFAULT);
+  var grid = matrix(data.height, data.width, SAFTEY);
 
   if (snakes.length) {
       snakes.forEach(function(snek) {
@@ -186,10 +189,24 @@ function init(mysnek, data) {
       })
   }
   if (food.length) {
-      console.log(food)
+      //console.log(food)
       food.forEach(function(f) {
           grid[f[0]][f[1]] = FOOD;
       })
+  }
+  if (data['mode'] == 'advanced') {
+    var walls = data.walls;
+    if (walls.length) {
+        walls.forEach(function(w) {
+            grid[w[0]][w[1]] = WALL;
+        });
+    }
+    var gold = data.walls;
+    if (gold.length) {
+        gold.forEach(function(g) {
+            grid[g[0]][g[1]] = GOLD;
+        });
+    }
   }
 
   return grid;
@@ -232,170 +249,28 @@ function matrix(rows, cols, defaultValue) {
   return arr;
 }
 
-module.exports = router;
-
-/*
-    print data
-    print '##################'
-    snek, grid = init(data)
-
-    #foreach snake
-    for enemy in data['snakes']:
-        if (enemy['id'] == ID):
-            continue
-        if distance(snek['coords'][0], enemy['coords'][0]) > SNEK_BUFFER:
-            continue
-        if (len(enemy['coords']) > len(snek['coords'])-1):
-            #dodge
-            if enemy['coords'][0][1] < data['height']-1:
-                grid[enemy['coords'][0][0]][enemy['coords'][0][1]+1] = SAFTEY
-            if enemy['coords'][0][1] > 0:
-                grid[enemy['coords'][0][0]][enemy['coords'][0][1]-1] = SAFTEY
-
-            if enemy['coords'][0][0] < data['width']-1:
-                grid[enemy['coords'][0][0]+1][enemy['coords'][0][1]] = SAFTEY
-            if enemy['coords'][0][0] > 0:
-                grid[enemy['coords'][0][0]-1][enemy['coords'][0][1]] = SAFTEY
-
-
-    snek_head = snek['coords'][0]
-    snek_coords = snek['coords']
-    path = None
-    middle = [data['width'] / 2, data['height'] / 2]
-    foods = sorted(data['food'], key = lambda p: distance(p,middle))
-    for food in foods:
-        #print food
-        tentative_path = a_star(snek_head, food, grid, snek_coords)
-        if not tentative_path:
-            #print "no path to food"
-            continue
-
-        path_length = len(tentative_path)
-        snek_length = len(snek_coords) + 1
-
-        dead = False
-        for enemy in data['snakes']:
-            if enemy['id'] == ID:
-                continue
-            if path_length > distance(enemy['coords'][0], food):
-                dead = True
-        if dead:
-            continue
-
-        # Update snek
-        if path_length < snek_length:
-            remainder = snek_length - path_length
-            new_snek_coords = list(reversed(tentative_path)) + snek_coords[:remainder]
-        else:
-            new_snek_coords = list(reversed(tentative_path))[:snek_length]
-
-        if grid[new_snek_coords[0][0]][new_snek_coords[0][1]] == FOOD:
-            # we ate food so we grow
-            new_snek_coords.append(new_snek_coords[-1])
-
-        # Create a new grid with the updates snek positions
-        new_grid = copy.deepcopy(grid)
-
-        for coord in snek_coords:
-            new_grid[coord[0]][coord[1]] = 0
-        for coord in new_snek_coords:
-            new_grid[coord[0]][coord[1]] = SNAKE
-
-        printg(grid, 'orig')
-        printg(new_grid, 'new')
-
-        print snek['coords'][-1]
-        foodtotail = a_star(food,new_snek_coords[-1],new_grid, new_snek_coords)
-        if foodtotail:
-            path = tentative_path
-            break
-        print "no path to tail from food"
-
-
-
-    if not path:
-        path = a_star(snek_head, snek['coords'][-1], grid, snek_coords)
-
-    despair = not (path and len(path) > 1)
-
-    if despair:
-        for neighbour in neighbours(snek_head,grid,0,snek_coords, [1,2,5]):
-            path = a_star(snek_head, neighbour, grid, snek_coords)
-            #print 'i\'m scared'
-            break
-
-    despair = not (path and len(path) > 1)
-
-
-    if despair:
-        for neighbour in neighbours(snek_head,grid,0,snek_coords, [1,2]):
-            path = a_star(snek_head, neighbour, grid, snek_coords)
-            #print 'lik so scared'
-            break
-
-    if path:
-        assert path[0] == tuple(snek_head)
-        assert len(path) > 1
-
-    print path
-    print '##################'
-    return {
-        'move': direction(path[0], path[1]),
-        'taunt': 'TRAITOR!'
-    }
-
-def goals(data):
-    result = data['food']
-    return result
-
-def direction(from_cell, to_cell):
-    dx = to_cell[0] - from_cell[0]
-    dy = to_cell[1] - from_cell[1]
-
-    if dx == 1:
-        return 'east'
-    elif dx == -1:
-        return 'west'
-    elif dy == -1:
-        return 'north'
-    elif dy == 1:
-        return 'south'
-
-def distance(p, q):
-    dx = abs(p[0] - q[0])
-    dy = abs(p[1] - q[1])
-    return dx + dy;
-
-def closest(items, start):
-    closest_item = None
-    closest_distance = 10000
-
-    # TODO: use builtin min for speed up
-    for item in items:
-        item_distance = distance(start, item)
-        if item_distance < closest_distance:
-            closest_item = item
-            closest_distance = item_distance
+function closest(items, start) {
+    var closest_item = _.min(items, function(item) {
+        return distance(start, item);
+    });
 
     return closest_item
+}
 
-def init(data):
-    mysnake = next(x for x in data['snakes'] if x['name'] == snake_name)
+/*
+ifFoodAhead: If there is food in line with the snake’s current direction, this function will execute its first argument, otherwise it will execute the second argument. This was the only initial function that gave the snake information beyond its immediate surroundings.
+function ifFoodAhead(grid, snake) {
+}
 
-    grid = [[0 for col in xrange(data['height'])] for row in xrange(data['width'])]
-    for snek in data['snakes']:
-        for coord in snek['coords']:
-            grid[coord[0]][coord[1]] = SNAKE
 
-#    if data['mode'] == 'advanced':
-#        for wall in data['walls']:
-#            grid[wall[0]][wall[1]] = WALL
-#        for g in data['gold']:
-#            grid[g[0]][g[1]] = GOLD
+ifDangerAhead: If the game square immediately in front of the snake is occupied with either a snake body segment or the wall, this function will execute its first argument, otherwise it will execute its second argument.
 
-    for f in data['food']:
-        grid[f[0]][f[1]] = FOOD
+ifDangerRight: If the game square immediately to the right of the snake is occupied with either a snake body segment or the wall, this function will execute its first argument, otherwise it will execute its second argument.
 
-    return mysnake, grid
+ifDangerLeft: If the game square immediately to the left of the snake is occupied with either a snake body segment or the wall, this function will execute its first argument, otherwise it will execute its second argument.
+
+progn2: This is a connectivity function that will first execute its right argument, then its left. It is the only function that allows execution of more than one terminal in a single parse of the function tree
 
 */
+
+module.exports = router;
