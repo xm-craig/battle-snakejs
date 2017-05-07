@@ -17,34 +17,36 @@ var gameState = {};
 
 // Handle POST request to '/start'
 router.post('/start', function (req, res) {
-  console.log(req.body)
+    console.log(req.body)
 
-  // NOTE: Do something here to start the game
-  if (!req.body) return res.sendStatus(400)
-  //gameId = req.body['game']
+    // NOTE: Do something here to start the game
+    if (!req.body) return res.sendStatus(400)
 
-  // Response data
-  var data = {
-    color: "#DDFF00",
-    secondary_color: "#00D5FB",
-    name: "FriskySnake",
-    head_url: "http://www.blogcdn.com/www.aoltv.com/media/2007/04/fdrisksyss.gif",
-    taunt: "Let's do thisss thang!",
-    head_type: "tongue",
-    tail_type: "freckled"
-  }
+    // record game state
+    gameState[req.body.game_id] = {"middle": {"x":(req.body.width/2), "y":(req.body.height/2)}};
 
-  return res.json(data)
-})
+    // Response data
+    var data = {
+      color: "#DDFF00",
+      secondary_color: "#00D5FB",
+      name: "FriskySnake",
+      head_url: "http://www.blogcdn.com/www.aoltv.com/media/2007/04/fdrisksyss.gif",
+      taunt: "Let's do thisss thang!",
+      head_type: "tongue",
+      tail_type: "freckled"
+    }
+
+    return res.json(data)
+});
 
 router.post('/end', function (req, res) {
-  // Response data
-  var data = {
-    taunt: 'Outta my way, snake!'
-  }
+    // Response data
+    var data = {
+      taunt: 'Outta my way, snake!'
+    }
 
-  return res.json(data)
-})
+    return res.json(data)
+});
 
 // Handle POST request to '/move'
 // DATA OBJECT
@@ -83,142 +85,139 @@ router.post('/end', function (req, res) {
 //     "gold": 2
 // }
 router.post('/move', function (req, res) {
-  console.log(req.body);
+    console.log(req.body);
 
-  if (!req.body) return res.sendStatus(400);
+    if (!req.body) return res.sendStatus(400);
 
-  var gameId = req.body['game_id'];
-  var snakes = req.body['snakes'];
-  var food = req.body['food'];
+    var gameId = req.body['game_id'];
+    var snakes = req.body['snakes'];
+    var food = req.body['food'];
 
-  console.log("*** GAME STATE ***");
-  console.log(gameState[gameId]);
+    console.log("*** GAME STATE ***");
+    console.log(gameState[gameId]);
 
-  //console.log(snakes);
-  //console.log(food);
-  //console.log("*** using underscore *** ");
-  // find our snake
-  var mysnek = _.find(snakes, function(snake) { return snake.name == MY_NAME; });
-  //console.log("*** my snek *** ");
-  //console.log(mysnek);
-  var mysnek_head = mysnek.coords[0];
-  var mysnek_coords = mysnek.coords;
+    //console.log(snakes);
+    //console.log(food);
+    //console.log("*** using underscore *** ");
+    // find our snake
+    var mysnek = _.find(snakes, function(snake) { return snake.name == MY_NAME; });
+    //console.log("*** my snek *** ");
+    //console.log(mysnek);
+    var mysnek_head = mysnek.coords[0];
+    var mysnek_coords = mysnek.coords;
 
-  // initialize the grid
-  var grid = init(mysnek, req.body);
-  //console.log("*** The Grid *** ");
-  //console.log(grid);
+    // initialize the grid
+    var grid = init(mysnek, req.body);
+    //console.log("*** The Grid *** ");
+    //console.log(grid);
 
-  // search for shortest path to food
-  //console.log("*** food check start *** ");
-  var path;
-  var tentatives = new Array();
-  food.forEach(function(pellet) {
-     var tentative = astar.search(grid, mysnek_head, pellet);
-      if (!tentative) {
-          console.log("**** no path to food pellet");
-          return;
-      }
+    // search for shortest path to food
+    //console.log("*** food check start *** ");
+    var path;
+    var tentatives = new Array();
+    food.forEach(function(pellet) {
+       var tentative = astar.search(grid, mysnek_head, pellet);
+        if (!tentative) {
+            console.log("**** no path to food pellet");
+            return;
+        }
 
-      // save this for later
-      tentatives.push(tentative);
+        // save this for later
+        tentatives.push(tentative);
 
-      // check that there are no other snake heads closer
-      var path_length = _.size(tentative);
-      var mysnek_length = _.size(mysnek_coords) + 1;
-      var dead = false;
-      snakes.forEach(function(enemy) {
-          if (enemy.name == MY_NAME)
-              return;
-          if (path_length >= distance(enemy['coords'][0], pellet))
-              dead = true;
-      })
-      if (dead)
-          return;
+        // check that there are no other snake heads closer
+        var path_length = _.size(tentative);
+        var mysnek_length = _.size(mysnek_coords) + 1;
+        var dead = false;
+        snakes.forEach(function(enemy) {
+            if (enemy.name == MY_NAME)
+                return;
+            if (path_length >= distance(enemy['coords'][0], pellet))
+                dead = true;
+        })
+        if (dead)
+            return;
 
-      path = tentative;
-  })
-  //console.log("***food check complete *** ")
+        path = tentative;
+    })
+    //console.log("***food check complete *** ")
 
-  // if there are no paths to food pellets then chase our tail
-  var despair = false;
-  if (!path) {
-      console.log('no path to any food');
-      path = astar.search(grid, mysnek_head, mysnek_coords[mysnek_coords.length-1]);
-      despair = !path || !(_.size(path) > 1);
-  }
+    // if there are no paths to food pellets then chase our tail
+    var despair = false;
+    if (!path) {
+        console.log('no path to any food');
+        path = astar.search(grid, mysnek_head, mysnek_coords[mysnek_coords.length-1]);
+        despair = !path || !(_.size(path) > 1);
+    }
 
-  // if there's no path to our tail then we should pick the first safest location
-  if (despair) {
-      console.log('*** DESPAIR: no path to tail!');
-      // if there are no paths to food pellets closest to us, pick the closest anyway
-      if (_.size(tentatives) > 0) {
-          console.log("*** picking a pellet closer to other snakes *** ");
-          path = tentatives[0];
-      } else {
-          // this will cause the snake to move down
-          path = [ mysnek_head ];
-          //ifDangerAhead(grid, mysnek_head);
-      }
-  }
+    // if there's no path to our tail then we should pick the first safest location
+    if (despair) {
+        console.log('*** DESPAIR: no path to tail!');
+        // if there are no paths to food pellets closest to us, pick the closest anyway
+        if (_.size(tentatives) > 0) {
+            console.log("*** picking a pellet closer to other snakes *** ");
+            path = tentatives[0];
+        } else {
+            // this will cause the snake to move down
+            path = [ mysnek_head ];
+            //ifDangerAhead(grid, mysnek_head);
+        }
+    }
 
-  console.log('######## THE CHOSEN PATH ##########');
-  console.log('next coord: x='+ path[0].x +', y='+path[0].y);
+    console.log('######## THE CHOSEN PATH ##########');
+    console.log('next coord: x='+ path[0].x +', y='+path[0].y);
 
-  var nextDirection = direction(mysnek_head, [path[0].x, path[0].y]);
-  console.log(nextDirection);
+    var nextDirection = direction(mysnek_head, [path[0].x, path[0].y]);
+    console.log(nextDirection);
 
-  // record the move for next time
-  gameState[gameId] = _.extend(gameState[gameId], {"move": nextDirection});
-  // Response data
-  var data = {
-      move: nextDirection,
-      taunt: 'I am Killface!'
-  }
+    // record the move for next time
+    gameState[gameId] = _.extend(gameState[gameId], {"move": nextDirection});
+    // Response data
+    var data = {
+        move: nextDirection,
+        taunt: 'I am Killface!'
+    }
 
-  return res.json(data);
-})
+    return res.json(data);
+});
 
 function init(mysnek, data) {
-  console.log(req.body)
+    console.log(req.body)
 
-  // record game state
-  gameState[req.body.game_id] = {"middle": {"x":(req.body.width/2), "y":(req.body.height/2)};
+    var snakes = data.snakes;
+    var food = data.food;
 
-  var snakes = data.snakes;
-  var food = data.food;
+    var grid = matrix(data.height, data.width, SAFTEY);
 
-  var grid = matrix(data.height, data.width, SAFTEY);
-
-  if (snakes.length) {
-      snakes.forEach(function(snek) {
-        snek['coords'].forEach(function(coord) {
-          grid[coord[0]][coord[1]] = SNAKE;
+    if (snakes.length) {
+        snakes.forEach(function(snek) {
+          snek['coords'].forEach(function(coord) {
+            grid[coord[0]][coord[1]] = SNAKE;
+          })
         })
-      })
-  }
-  if (food.length) {
-      //console.log(food)
-      food.forEach(function(f) {
-          grid[f[0]][f[1]] = FOOD;
-      })
-  }
-  if (data['mode'] == 'advanced') {
-    var walls = data.walls;
-    if (walls.length) {
-        walls.forEach(function(w) {
-            grid[w[0]][w[1]] = WALL;
-        });
     }
-    var gold = data.walls;
-    if (gold.length) {
-        gold.forEach(function(g) {
-            grid[g[0]][g[1]] = GOLD;
-        });
+    if (food.length) {
+        //console.log(food)
+        food.forEach(function(f) {
+            grid[f[0]][f[1]] = FOOD;
+        })
     }
-  }
+    if (data['mode'] == 'advanced') {
+      var walls = data.walls;
+      if (walls.length) {
+          walls.forEach(function(w) {
+              grid[w[0]][w[1]] = WALL;
+          });
+      }
+      var gold = data.walls;
+      if (gold.length) {
+          gold.forEach(function(g) {
+              grid[g[0]][g[1]] = GOLD;
+          });
+      }
+    }
 
-  return grid;
+    return grid;
 }
 
 /**
@@ -246,16 +245,16 @@ function direction(from_cell, to_cell) {
 }
 
 function matrix(rows, cols, defaultValue) {
-  var arr = new Array(rows);
-  for(var i=0; i < rows; i++){
-      // Adds cols to the empty line:
-      arr[i] = new Array(cols);
-      for(var j=0; j < cols; j++){
-        // Initializes:
-        arr[i][j] = defaultValue;
-      }
-  }
-  return arr;
+    var arr = new Array(rows);
+    for(var i=0; i < rows; i++){
+        // Adds cols to the empty line:
+        arr[i] = new Array(cols);
+        for(var j=0; j < cols; j++){
+          // Initializes:
+          arr[i][j] = defaultValue;
+        }
+    }
+    return arr;
 }
 
 function closest(items, start) {
