@@ -83,37 +83,40 @@ router.post('/end', function (req, res) {
 //     "gold": 2
 // }
 router.post('/move', function (req, res) {
-  //console.log(req.body)
+  console.log(req.body);
 
-  if (!req.body) return res.sendStatus(400)
+  if (!req.body) return res.sendStatus(400);
 
-  var gameId = req.body['gameId'];
+  var gameId = req.body['game_id'];
   var snakes = req.body['snakes'];
   var food = req.body['food'];
 
-  //console.log(snakes)
-  //console.log(food)
-  //console.log("*** using underscore *** ")
+  console.log("*** GAME STATE ***");
+  console.log(gameState[gameId]);
+
+  //console.log(snakes);
+  //console.log(food);
+  //console.log("*** using underscore *** ");
   // find our snake
   var mysnek = _.find(snakes, function(snake) { return snake.name == MY_NAME; });
-  //console.log("*** my snek *** ")
-  //console.log(mysnek)
+  //console.log("*** my snek *** ");
+  //console.log(mysnek);
   var mysnek_head = mysnek.coords[0];
   var mysnek_coords = mysnek.coords;
 
   // initialize the grid
   var grid = init(mysnek, req.body);
-  //console.log("*** The Grid *** ")
-  //console.log(grid)
+  //console.log("*** The Grid *** ");
+  //console.log(grid);
 
   // search for shortest path to food
-  //console.log("*** food check start *** ")
+  //console.log("*** food check start *** ");
   var path;
   var tentatives = new Array();
   food.forEach(function(pellet) {
      var tentative = astar.search(grid, mysnek_head, pellet);
       if (!tentative) {
-          console.log("**** no path to food pellet")
+          console.log("**** no path to food pellet");
           return;
       }
 
@@ -121,9 +124,9 @@ router.post('/move', function (req, res) {
       tentatives.push(tentative);
 
       // check that there are no other snake heads closer
-      var path_length = _.size(tentative)
-      var mysnek_length = _.size(mysnek_coords) + 1
-      var dead = false
+      var path_length = _.size(tentative);
+      var mysnek_length = _.size(mysnek_coords) + 1;
+      var dead = false;
       snakes.forEach(function(enemy) {
           if (enemy.name == MY_NAME)
               return;
@@ -145,26 +148,28 @@ router.post('/move', function (req, res) {
       despair = !path || !(_.size(path) > 1);
   }
 
-  // if there's no path to our tail then we should pick the first 
+  // if there's no path to our tail then we should pick the first safest location
   if (despair) {
-      console.log('no path to tail!');
+      console.log('*** DESPAIR: no path to tail!');
       // if there are no paths to food pellets closest to us, pick the closest anyway
       if (_.size(tentatives) > 0) {
-         console.log("*** picking a pellet closer to other snakes *** ")
-         path = tentatives[0];
+          console.log("*** picking a pellet closer to other snakes *** ");
+          path = tentatives[0];
       } else {
-          path = [ {"x":(mysnek_head[0]+1),"y":mysnek_head[1]} ];
+          // this will cause the snake to move down
+          path = [ mysnek_head ];
+          //ifDangerAhead(grid, mysnek_head);
       }
   }
 
   console.log('######## THE CHOSEN PATH ##########');
-  console.log(path[0]);
+  console.log('next coord: x='+ path[0].x +', y='+path[0].y);
 
   var nextDirection = direction(mysnek_head, [path[0].x, path[0].y]);
   console.log(nextDirection);
 
   // record the move for next time
-  gameState[gameId] = nextDirection;
+  gameState[gameId] = _.extend(gameState[gameId], {"move": nextDirection});
   // Response data
   var data = {
       move: nextDirection,
@@ -176,6 +181,10 @@ router.post('/move', function (req, res) {
 
 function init(mysnek, data) {
   console.log(req.body)
+
+  // record game state
+  gameState[req.body.game_id] = {"middle": {"x":(req.body.width/2), "y":(req.body.height/2)};
+
   var snakes = data.snakes;
   var food = data.food;
 
@@ -257,20 +266,55 @@ function closest(items, start) {
     return closest_item
 }
 
-/*
+/* Other functions that could help improve snake behaviour
+
 ifFoodAhead: If there is food in line with the snake’s current direction, this function will execute its first argument, otherwise it will execute the second argument. This was the only initial function that gave the snake information beyond its immediate surroundings.
 function ifFoodAhead(grid, snake) {
 }
 
-
 ifDangerAhead: If the game square immediately in front of the snake is occupied with either a snake body segment or the wall, this function will execute its first argument, otherwise it will execute its second argument.
+function ifDangerAhead(grid, snake) {
+}
 
 ifDangerRight: If the game square immediately to the right of the snake is occupied with either a snake body segment or the wall, this function will execute its first argument, otherwise it will execute its second argument.
+function ifDangerRight(grid, snake) {
+}
 
 ifDangerLeft: If the game square immediately to the left of the snake is occupied with either a snake body segment or the wall, this function will execute its first argument, otherwise it will execute its second argument.
+function ifDangerLeft(grid, snake) {
+}
 
 progn2: This is a connectivity function that will first execute its right argument, then its left. It is the only function that allows execution of more than one terminal in a single parse of the function tree
+function progn2(move, move) {
+}
 
+ifDangerTwoAhead: If the game square two spaces immediately in front of the snake is occupied by either the wall or a segment of the snake’s body, this function will execute the first parameter, otherwise it will execute the second.
+function ifDangerTwoAhead(grid, snake) {
+}
+
+ifFoodUp: If the current piece of food on the board is closer to the top of the game board than the snake’s head, then the first parameter of this function will be executed, otherwise the second parameter will be executed.
+function ifFoodUp(grid, snake) {
+}
+
+ifFoodRight: If the current piece of food on the board is further to the right of the game board than the snake’s head, then the first parameter of this function will be executed, otherwise the second parameter will be executed.
+function ifFoodRight(grid, snake) {
+}
+
+ifMovingRight: If the snake is moving right, then the first parameter of this function will be executed, otherwise the second parameter will be executed.
+function ifMovingRight(grid, snake) {
+}
+
+ifMovingLeft: If the snake is moving left, then the first parameter of this function will be executed, otherwise the second parameter will be executed.
+function ifMovingLeft(grid, snake) {
+}
+
+ifMovingUp: If the snake is moving upward, then the first parameter of this function will be executed, otherwise the second parameter will be executed.
+function ifMovingUp(grid, snake) {
+}
+
+ifMovingDown: If the snake is moving downward, then the first parameter of this function will be executed, otherwise the second parameter will be executed.
+function ifMovingDown(grid, snake) {
+}
 */
 
 module.exports = router;
