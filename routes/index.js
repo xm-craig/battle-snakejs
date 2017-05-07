@@ -15,7 +15,35 @@ var MY_NAME = 'FriskySnake';
 // Previous Game state
 var gameState = {};
 
-// Handle POST request to '/start'
+/*
+ Handle POST request to '/start'
+
+{
+   you: '76b6ae04-71bd-4d3d-8a94-96b06290932b',
+   width: 30,
+   turn: 0,
+   snakes:
+    [ { taunt: 'Oh my gosh',
+        name: 'nake',
+        id: 'b2468470-f846-4bcf-abdc-2520359c3710',
+        health_points: 100,
+        coords: [Object] },
+      { taunt: 'Let\'s do thisss thang!',
+        name: 'FriskySnake',
+        id: '76b6ae04-71bd-4d3d-8a94-96b06290932b',
+        health_points: 100,
+        coords: [Object] },
+      { taunt: 'Choke yourself!',
+        name: 'FriskyDingo',
+        id: '9954806c-aaf3-4cad-aa03-db290561a3b1',
+        health_points: 100,
+        coords: [Object] } ],
+   height: 30,
+   game_id: 'ef599476-8be1-4f1b-bb37-0d1c4f96eace',
+   food: [ [ 0, 29 ] ],
+   dead_snakes: []
+}
+*/
 router.post('/start', function (req, res) {
     console.log(req.body)
 
@@ -48,42 +76,36 @@ router.post('/end', function (req, res) {
     return res.json(data)
 });
 
-// Handle POST request to '/move'
-// DATA OBJECT
-// {
-//     "game": "hairy-cheese",
-//     "mode": "advanced",
-//     "turn": 4,
-//     "height": 20,
-//     "width": 30,
-//     "snakes": [
-//         <Snake Object>, <Snake Object>, ...
-//     ],
-//     "food": [
-//         [1, 2], [9, 3], ...
-//     ],
-//     "walls": [    // Advanced Only
-//         [2, 2]
-//     ],
-//     "gold": [     // Advanced Only
-//         [5, 5]
-//     ]
-// }
-//
-//SNAKE
-// {
-//     "id": "1234-567890-123456-7890",
-//     "name": "Well Documented Snake",
-//     "status": "alive",
-//     "message": "Moved north",
-//     "taunt": "Let's rock!",
-//     "age": 56,
-//     "health": 83,
-//     "coords": [ [1, 1], [1, 2], [2, 2] ],
-//     "kills": 4,
-//     "food": 12,
-//     "gold": 2
-// }
+/**
+ Handle POST request to '/move'
+
+{
+   game_id: 'ef599476-8be1-4f1b-bb37-0d1c4f96eace',
+   you: '76b6ae04-71bd-4d3d-8a94-96b06290932b',
+   width: 30,
+   height: 30,
+   turn: 0,
+   snakes:
+    [ { taunt: 'Oh my gosh',
+        name: 'nake',
+        id: 'b2468470-f846-4bcf-abdc-2520359c3710',
+        health_points: 100,
+        coords: [[1,2]] },
+      { taunt: 'Let\'s do thisss thang!',
+        name: 'FriskySnake',
+        id: '76b6ae04-71bd-4d3d-8a94-96b06290932b',
+        health_points: 100,
+        coords: [[3,4]] },
+      { taunt: 'Choke yourself!',
+        name: 'FriskyDingo',
+        id: '9954806c-aaf3-4cad-aa03-db290561a3b1',
+        health_points: 100,
+        coords: [[8,9]] }
+    ],
+   food: [ [ 0, 29 ] ],
+   dead_snakes: []
+}
+*/
 router.post('/move', function (req, res) {
     console.log(req.body);
 
@@ -182,8 +204,6 @@ router.post('/move', function (req, res) {
 });
 
 function init(mysnek, data) {
-    console.log(req.body)
-
     var snakes = data.snakes;
     var food = data.food;
 
