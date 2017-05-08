@@ -200,7 +200,7 @@ router.post('/move', function (req, res) {
     console.log(nextDirection);
 
     // record the move for next time
-    gameState[gameId] = _.extend(gameState[gameId], {"move": nextDirection});
+    gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
     // Response data
     var data = {
         move: nextDirection,
@@ -213,6 +213,10 @@ router.post('/move', function (req, res) {
 function init(mysnek, data) {
     var snakes = data.snakes;
     var food = data.food;
+
+    // if the server was restarted in the middle of game play, we recreate the gameState
+    if (!gameState[data.game_id])
+      gameState[data.game_id] = {"middle": [(data.width/2), (data.height/2)]};
 
     var grid = matrix(data.height, data.width, SAFTEY);
 
