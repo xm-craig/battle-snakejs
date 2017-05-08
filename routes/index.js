@@ -170,10 +170,10 @@ router.post('/move', function (req, res) {
         console.log('no path to our tail so lets head for the middle');
         path = astar.search(grid, mysnek_head, gameState[gameId].middle);
     }
-    if (!path) {
-        console.log('no path to any food so lets chase our tail');
+    if (!path || !(_.size(path) > 0) {
+        console.log('no path to any food or the middle so lets chase our tail');
         path = astar.search(grid, mysnek_head, mysnek_coords[mysnek_coords.length-1]);
-        despair = !path || !(_.size(path) > 1);
+        despair = !path || !(_.size(path) > 0);
     }
 
     // if there's no path to our tail or the middle of the board then we should pick the first safest location
