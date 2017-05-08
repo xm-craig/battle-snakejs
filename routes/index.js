@@ -115,8 +115,8 @@ router.post('/move', function (req, res) {
     var snakes = req.body['snakes'];
     var food = req.body['food'];
 
-    console.log("*** GAME STATE ***");
-    console.log(gameState[gameId]);
+    //console.log("*** GAME STATE ***");
+    //console.log(gameState[gameId]);
 
     //console.log(snakes);
     //console.log(food);
@@ -140,7 +140,7 @@ router.post('/move', function (req, res) {
     food.forEach(function(pellet) {
        var tentative = astar.search(grid, mysnek_head, pellet);
         if (!tentative) {
-            console.log("**** no path to food pellet");
+            //console.log("**** no path to food pellet");
             return;
         }
 
@@ -167,18 +167,18 @@ router.post('/move', function (req, res) {
     // if there are no paths to food pellets then head to the middle or chase our tail
     var despair = false;
     if (!path) {
-        console.log('no path to our tail so lets head for the middle');
+        console.log('*** no path to any food so lets head for the middle');
         path = astar.search(grid, mysnek_head, gameState[gameId].middle);
     }
     if (!path || !(_.size(path) > 0)) {
-        console.log('no path to any food or the middle so lets chase our tail');
+        console.log('*** no path to any food or the middle so lets chase our tail');
         path = astar.search(grid, mysnek_head, mysnek_coords[mysnek_coords.length-1]);
         despair = !path || !(_.size(path) > 0);
     }
 
     // if there's no path to our tail or the middle of the board then we should pick the first safest location
     if (despair) {
-        console.log('*** DESPAIR: NO PATH');
+        console.log('*** DESPAIR: no path to food or our tail or the middle');
         // if there are no paths to food pellets closest to us, pick the second closest anyway
         if (_.size(tentatives) > 1) {
             console.log("*** picking the second closest pellet to us *** ");
@@ -193,11 +193,11 @@ router.post('/move', function (req, res) {
         }
     }
 
-    console.log('######## THE CHOSEN PATH ##########');
-    console.log('next coord: x='+ path[0].x +', y='+path[0].y);
+    //console.log('######## THE CHOSEN PATH ##########');
+    //console.log('next coord: x='+ path[0].x +', y='+path[0].y);
 
     var nextDirection = direction(mysnek_head, [path[0].x, path[0].y]);
-    console.log(nextDirection);
+    //console.log(nextDirection);
 
     // record the move for next time
     gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
