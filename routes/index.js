@@ -194,7 +194,6 @@ router.post('/move', function (req, res) {
     }
 
     console.log('######## THE CHOSEN PATH ##########');
-    console.log(path);
     console.log('next coord: x='+ path[0].x +', y='+path[0].y);
 
     var nextDirection = direction(mysnek_head, [path[0].x, path[0].y]);
