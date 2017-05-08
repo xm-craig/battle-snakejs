@@ -188,11 +188,13 @@ router.post('/move', function (req, res) {
             path = tentatives[0];
         } else {
             // if there are no potential food pellets then pick the first safest location
+            console.log("*** picking the safest location *** ");
             path = [ safestNeighbour(mysnek_head, grid) ];
         }
     }
 
     console.log('######## THE CHOSEN PATH ##########');
+    console.log(path);
     console.log('next coord: x='+ path[0].x +', y='+path[0].y);
 
     var nextDirection = direction(mysnek_head, [path[0].x, path[0].y]);
