@@ -45,7 +45,7 @@ var gameState = {};
 }
 */
 router.post('/start', function (req, res) {
-    console.log(req.body)
+    //console.log(req.body)
 
     // NOTE: Do something here to start the game
     if (!req.body) return res.sendStatus(400)
@@ -164,25 +164,31 @@ router.post('/move', function (req, res) {
     })
     //console.log("***food check complete *** ")
 
-    // if there are no paths to food pellets then chase our tail
+    // if there are no paths to food pellets then head to the middle or chase our tail
     var despair = false;
     if (!path) {
-        console.log('no path to any food');
+        console.log('no path to our tail so lets head for the middle');
+        path = astar.search(grid, mysnek_head, gameState[gameId].middle);
+    }
+    if (!path) {
+        console.log('no path to any food so lets chase our tail');
         path = astar.search(grid, mysnek_head, mysnek_coords[mysnek_coords.length-1]);
         despair = !path || !(_.size(path) > 1);
     }
 
-    // if there's no path to our tail then we should pick the first safest location
+    // if there's no path to our tail or the middle of the board then we should pick the first safest location
     if (despair) {
-        console.log('*** DESPAIR: no path to tail!');
-        // if there are no paths to food pellets closest to us, pick the closest anyway
-        if (_.size(tentatives) > 0) {
-            console.log("*** picking a pellet closer to other snakes *** ");
+        console.log('*** DESPAIR: NO PATH');
+        // if there are no paths to food pellets closest to us, pick the second closest anyway
+        if (_.size(tentatives) > 1) {
+            console.log("*** picking the second closest pellet to us *** ");
+            path = tentatives[1];
+        } else if (_.size(tentatives) > 0) {
+            console.log("*** picking the closest pellet to us *** ");
             path = tentatives[0];
         } else {
-            // this will cause the snake to move down
-            path = [ mysnek_head ];
-            //ifDangerAhead(grid, mysnek_head);
+            // if there are no potential food pellets then pick the first safest location
+            path = [ safestNeighbour(mysnek_head, grid) ];
         }
     }
 
@@ -275,6 +281,36 @@ function matrix(rows, cols, defaultValue) {
         }
     }
     return arr;
+}
+
+function safestNeighbour(head, grid) {
+    var ret = [];
+    var x = head[0];
+    var y = head[1];
+    var grid = this.grid;
+
+    // Check West
+    if (grid[x - 1] && grid[x - 1][y]) {
+        return {"x":(x-1), "y":y };
+    }
+
+    // Check East
+    if (grid[x + 1] && grid[x + 1][y]) {
+        return {"x":(x+1), "y":y };
+    }
+
+    // Check South
+    if (grid[x] && grid[x][y - 1]) {
+        return {"x":x, "y":(y-1) };
+    }
+
+    // Check North
+    if (grid[x] && grid[x][y + 1]) {
+        return {"x":x, "y":(y+1) };
+    }
+
+    // this will cause a down action
+    return head;
 }
 
 function closest(items, start) {
