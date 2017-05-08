@@ -51,7 +51,7 @@ router.post('/start', function (req, res) {
     if (!req.body) return res.sendStatus(400)
 
     // record game state
-    gameState[req.body.game_id] = {"middle": {"x":(req.body.width/2), "y":(req.body.height/2)}};
+    gameState[req.body.game_id] = {"middle": [req.body.width/2), (req.body.height/2)]};
 
     // Response data
     var data = {
