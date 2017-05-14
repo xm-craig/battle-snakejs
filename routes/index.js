@@ -14,6 +14,7 @@ var MY_NAME = 'FriskySnake';
 
 // Previous Game state
 var gameState = {};
+var taunt_count = 1;
 
 /*
  Handle POST request to '/start'
@@ -60,8 +61,8 @@ router.post('/start', function (req, res) {
       name: "FriskySnake",
       head_url: "http://www.blogcdn.com/www.aoltv.com/media/2007/04/fdrisksyss.gif",
       taunt: "Let's do thisss thang!",
-      head_type: "tongue",
-      tail_type: "freckled"
+      head_type: "fang",
+      tail_type: "curled"
     }
 
     return res.json(data)
@@ -198,13 +199,13 @@ router.post('/move', function (req, res) {
 
     var nextDirection = direction(mysnek_head, [path[0].x, path[0].y]);
     //console.log(nextDirection);
-
+    var anotherTaunt = nextTaunt();
     // record the move for next time
     gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
     // Response data
     var data = {
         move: nextDirection,
-        taunt: 'I am Killface!'
+        taunt: anotherTaunt
     }
 
     return res.json(data);
@@ -324,6 +325,25 @@ function closest(items, start) {
     });
 
     return closest_item
+}
+
+function nextTaunt() {
+  if (taunt_count > 50) taunt_count=1;
+
+  if (taunt_count++ <= 5)
+    return 'I'
+  else if (taunt_count++ <= 10)
+    return 'AM'
+  else if (taunt_count++ <= 15)
+    return 'Killface!'
+  else if (taunt_count++ <= 20)
+    return 'Bow'
+  else if (taunt_count++ <= 25)
+    return 'Down'
+  else if (taunt_count++ <= 30)
+    return 'Behold The Annihilatrix!'
+
+  return 'I am Killface!'
 }
 
 /* Other functions that could help improve snake behaviour
