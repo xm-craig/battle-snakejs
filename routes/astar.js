@@ -120,6 +120,7 @@ var astar = {
     // No result was found - empty array signifies failure to find path.
     return [];
   },
+
   // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
   heuristics: {
     manhattan: function(pos0, pos1) {
@@ -135,6 +136,7 @@ var astar = {
       return (D * (d1 + d2)) + ((D2 - (2 * D)) * Math.min(d1, d2));
     }
   },
+
   cleanNode: function(node) {
     node.f = 0;
     node.g = 0;
