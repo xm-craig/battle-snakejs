@@ -476,7 +476,7 @@ var gameboard = {
    * assumes snake is 1 away from food
    */
   getSqCorners: function(snake, closeFood) {
-      var squareDim = (this.getSqSideLen(getSnakeLen(snake))-1)/2;
+      var squareDim = (this.getSqSideLen(this.getSnakeLen(snake))-1)/2;
 
       var snakeHead = snake['coords'][0];
       var sX = snakeHead[0];
