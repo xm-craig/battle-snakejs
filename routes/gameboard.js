@@ -1,7 +1,8 @@
 var astar  = require('./astar');
 var _      = require('underscore');
 
-
+// Constants
+// Snake Identifier
 var MY_NAME = 'FriskySnake';
 
 // Grid Weights
@@ -151,7 +152,7 @@ var gameboard = {
       var foodCount = _.size(food);
 
       // initialize the grid
-      var grid = this.initGame(req.body);
+      var grid = this.initGame(data);
 
       // find our snake
       var mysnek = _.find(snakes, function(snake) { return snake.name == MY_NAME; });
