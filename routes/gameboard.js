@@ -34,7 +34,7 @@ var gameboard = {
           "middle": [(data.width/2), (data.height/2)],
           "taunt_count": 1,
           "state": 0,
-          "sqCorners": []
+          "move": "none"
     };
 
     var grid = this.matrix(data.height, data.width, SAFTEY);
@@ -137,7 +137,7 @@ var gameboard = {
 
       var nextDirection = this.getDirection(mysnek_head, [path[0].x, path[0].y]);
       // record the move for next time
-      gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
+      gameState[gameId].move = nextDirection;
       return nextDirection;
   },
 
@@ -177,7 +177,6 @@ var gameboard = {
       var defensiveThreshold = this.getDistance(mysnek_head, closestFood) + 5;
 
       // determine best move
-      var move = 'down';
       var state = gameState[gameId].state;
 
       //  DEFENSIVE MOVE
@@ -215,7 +214,7 @@ var gameboard = {
           var corners = this.getSqCorners(mysnek, closestFood);
           var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
           // record the move for next time
-          gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
+          gameState[gameId].move = nextDirection;
           return nextDirection;
       } else if (state == 2 && mysnek_health > threshold) {
           console.log("*** Still on the offensive");
@@ -227,14 +226,16 @@ var gameboard = {
 //          var corners = this.getSqCorners(mysnek, closestFood);
 //          var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
 //          // record the move for next time
-//          gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
+//          gameState[gameId].move = nextDirection;
 //          return nextDirection;
 //      } else if (startOffensive) {
 //          //  If previous state was FEEDING start an OFFENSIVE play under the above conditions
 //          gameState[gameId].state = 2;
 //          console.log("*** get offensive: " + startOffensive);
+//          gameState[gameId].move = nextDirection;
+//          return nextDirection;
       }
-      else if (_.size(safestPath) > 0) {
+      else if (state == 0 && _.size(safestPath) > 0) {
         //  ALWAYS FEEDING
         //  UNLESS on defensive or the offensive
         //  If previous state was DEFENSIVE and health < threshold
@@ -243,7 +244,7 @@ var gameboard = {
         gameState[gameId].state = 0;
         var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
         // record the move for next time
-        gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
+        gameState[gameId].move = nextDirection;
         return nextDirection;
       }
 
@@ -269,7 +270,7 @@ var gameboard = {
 
       var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
       // record the move for next time
-      gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
+      gameState[gameId].move = nextDirection;
       return nextDirection;
   },
 
@@ -294,23 +295,18 @@ var gameboard = {
   closestPathsToFood: function(grid, mysnek, foods, snakes) {
       var gameboard = this;
       var head = mysnek.coords[0];
-      var path = [];
-      var tentatives = new Array();
+      var paths = new Array();
       foods.forEach(function(pellet) {
-         var tentative = astar.search(grid, head, pellet);
-
-          if (!tentative) return;
           // avoid food where other snakes are closer, or are larger than us
           if (gameboard.collisonCheck(mysnek, snakes, pellet)) return;
-
-          if (_.size(path) == 0 || (_.size(path) > _.size(tentative))) {
-            path = tentative;
-            tentatives.push(tentative);
-          }
-
+          // find shortest path
+          var path = astar.search(grid, head, pellet);
+          if (!path) return;
+          // save as a potential goal
+          paths.push(path);
       });
 
-      return tentatives.reverse();
+      return _.sort(paths, function(path) {return _.size(path)});
   },
 
   /**
