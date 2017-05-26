@@ -463,11 +463,11 @@ var gameboard = {
       for (var i=1;i<9999;i++) {
           var sidelen = i * 2 + 1;
           // the n length must be one less the total square size
-          var sqLen = (sideLen-1)*4 - 1;
-          if (sqLen > n)
+          var sqlen = (sidelen-1)*4 - 1;
+          if (sqlen > n)
             return sidelen;
       }
-      return 3;
+      return 25;
   },
 
   /**
