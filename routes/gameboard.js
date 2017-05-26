@@ -167,7 +167,7 @@ var gameboard = {
 
       // a sorted list of possible paths to each accessible food pellet
       var safestPath = this.closestPathsToFood(grid, mysnek, food, otherSnakes);
-      var closestFood = findClosest(food, mysnek_head);
+      var closestFood = this.findClosest(food, mysnek_head);
       var closestSnake = snakesByDistance[0];
       var smallestSnake = snakesBySize[0];
 
@@ -187,7 +187,8 @@ var gameboard = {
       //  and my health is great than the smallest snake on the board
       //  and number of moves to defend is less than my health
       //  and number of moves to defend is less than the closest enemy snake to the food
-      var numberOfDefensiveMoves = numberOfMovesToDefend(otherSnakes, mysnek, closestFood);
+      var numberOfDefensiveMoves = this.numberOfMovesToDefend(otherSnakes, mysnek, closestFood);
+      console.log("*** moves to defend: " + numberOfDefensiveMoves);
       var startDefensive =
           (state == 0) &&
           (snakeCount > foodCount) &&
@@ -410,14 +411,13 @@ var gameboard = {
     return head;
   },
 
-
-  sortSnakesByDistance: function(snakes, mysnake) {
+  getSnakesByDistance: function(snakes, target) {
     return _.sortBy(snakes, function(snake) {
-      return this.getDistance(mysnake, snake);
+      return this.getDistance(target, snake);
     });
   },
 
-  sortSnakesBySize: function(snakes) {
+  getSnakesBySize: function(snakes) {
     return _.sortBy(snakes, function(snake) {
        return this.getSnakeLen(snake);
     });
