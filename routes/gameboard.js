@@ -436,22 +436,22 @@ var gameboard = {
   },
 
   nextTaunt: function(gameId) {
-    if (taunt_count > 50) this.taunt_count=1;
+      var tc = gameState[gameId].taunt_count++;
+      if (tc > 50) gameState[gameId].taunt_count=1;
 
-    if (taunt_count++ <= 5)
-      return 'I'
-    else if (taunt_count++ <= 10)
-      return 'AM'
-    else if (taunt_count++ <= 15)
-      return 'Killface!'
-    else if (taunt_count++ <= 20)
-      return 'Bow'
-    else if (taunt_count++ <= 25)
-      return 'Down'
-    else if (taunt_count++ <= 50)
-      return 'Behold The Annihilatrix!'
-
-    return 'I am Killface!'
+      if (tc <= 5)
+        return 'I'
+      else if (tc <= 10)
+        return 'AM'
+      else if (tc <= 15)
+        return 'Killface!'
+      else if (tc <= 20)
+        return 'Bow'
+      else if (tc <= 25)
+        return 'Down'
+      else if (tc <= 50)
+        return 'Behold The Annihilatrix!'
+      return 'I am Killface!'
   },
 
   /**
