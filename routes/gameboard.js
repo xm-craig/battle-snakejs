@@ -292,6 +292,7 @@ var gameboard = {
    * Returns a sorted list of paths to each food pellet.
    */
   closestPathsToFood: function(grid, mysnek, foods, snakes) {
+      var gameboard = this;
       var head = mysnek.coords[0];
       var path = [];
       var tentatives = new Array();
@@ -300,7 +301,7 @@ var gameboard = {
 
           if (!tentative) return;
           // avoid food where other snakes are closer, or are larger than us
-          if (this.collisonCheck(mysnek, snakes, pellet)) return;
+          if (gameboard.collisonCheck(mysnek, snakes, pellet)) return;
 
           if (_.size(path) == 0 || (_.size(path) > _.size(tentative))) {
             path = tentative;
@@ -412,20 +413,23 @@ var gameboard = {
   },
 
   getSnakesByDistance: function(snakes, target) {
+    var gameboard = this;
     return _.sortBy(snakes, function(snake) {
-      return this.getDistance(target, snake);
+      return gameboard.getDistance(target, snake);
     });
   },
 
   getSnakesBySize: function(snakes) {
+    var gameboard = this;
     return _.sortBy(snakes, function(snake) {
-       return this.getSnakeLen(snake);
+       return gameboard.getSnakeLen(snake);
     });
   },
 
   findClosest: function(items, start) {
+    var gameboard = this;
     var closest_item = _.min(items, function(item) {
-        return this.getDistance(start, item);
+        return gameboard.getDistance(start, item);
     });
 
     return closest_item
@@ -587,6 +591,7 @@ var gameboard = {
    * Check that there are no other snakes closer, that are larger than me
    */
   collisonCheck: function(mysnek, snakes, food) {
+      var gameboard = this;
       var mysnek_head = mysnek.coords[0];
       var path_length = this.getDistance(mysnek_head, food);
       var mysnek_length = this.getSnakeLen(mysnek);
@@ -595,8 +600,8 @@ var gameboard = {
       snakes.forEach(function(enemy) {
           if (enemy.name == mysnek.name)
               return;
-          if (path_length >= this.getDistance(enemy['coords'][0], food) &&
-              mysnek_length < this.getSnakeLen(enemy))
+          if (path_length >= gameboard.getDistance(enemy['coords'][0], food) &&
+              mysnek_length < gameboard.getSnakeLen(enemy))
               dead = true;
       })
       return dead;
