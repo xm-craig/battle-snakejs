@@ -15,9 +15,9 @@ var WALL   = 0;  // Avoid
 /**
  * Decide which state we want to be in for current move
  * Previous state codes:
- * 	0 = Feeding   - getting food
- * 	1 = Defensive - protecting food
- * 	2 = Offensive - Eating snakes
+ *       0 = Feeding   - getting food
+ *       1 = Defensive - protecting food
+ *       2 = Offensive - Eating snakes
  */
 var gameState = {};
 
@@ -173,47 +173,71 @@ var gameboard = {
       //  Determine the threshold of when to move to food
       var threshold = 40; // number of moves to obtain the next food pellet
 
-      var defensiveThreshold = this.getDistance(mesnek_head, closestFood) + 5;
-      var offensiveThreshold = (mysnek_len - this.getSnakeLen(sortedSnakes[0])) > 1;
+      var defensiveThreshold = this.getDistance(mysnek_head, closestFood) + 5;
 
       // determine best move
       var move = 'down';
       var state = gameState[gameId].state;
 
-      //  DEFENSIVE
+      //  DEFENSIVE MOVE
       //  If previous state was FEEDING
       //  and number of food pellets is less than number of snakes
+      //  and there's at least one safe path to food
+      //  and my health is great than the smallest snake on the board
       //  and number of moves to defend is less than my health
       //  and number of moves to defend is less than the closest enemy snake to the food
-      var numberOfMovesToDefend = 9999;
+      var numberOfDefensiveMoves = numberOfMovesToDefend(otherSnakes, mysnek, closestFood);
       var startDefensive =
           (state == 0) &&
-          (snakeCount > foodCount)
+          (snakeCount > foodCount) &&
+          (_.size(safestPath) > 0) &&
           (mysnek_health > smallestSnake.health) &&
-          (numberOfMovesToDefend < this.getDistance(closestSnake, closestFood));
+          (numberOfDefensiveMoves < mysnek_health) &&
+          (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood));
+      console.log("*** get defensive: " + startDefensive);
 
-      var startOffensive = false;
-
-      //  If previous state was DEFENSIVE and health above threshold --> continue DEFENSIVE
-      if (state == 1 and health > threshold) {
-      //  If previous state was OFFENSIVE and health above threshold --> continue OFFENSIVE
-      } else if (state == 2 and health > threshold) {
-      } else if (startDefensive) {
-        gameState[gameId].state = 1;
-      }
-      //  OFFENSIVE
+      //  OFFENSIVE MOVE
       //  If previous state was FEEDING
-      //  and closest snake position is two away
+      //  and closest snake position is two positions away
       //  and our snake is longer by two or more than the closest snake
       //  and health is above threshold
-      else if (startOffensive) {
-        gameState[gameId].state = 2;
+      var startOffensive = 
+          (state == 0) &&
+          ((mysnek_len - this.getSnakeLen(closestSnake)) >= 2) &&
+          (this.getDistance(closestSnake.coords[0], mysnek_head) <= 2);
+
+      if (state == 1 && mysnek_health > defensiveThreshold) {
+          console.log("*** Still on the defensive");
+          //  If previous state was DEFENSIVE and health above threshold --> continue DEFENSIVE
+          gameState[gameId].state = 1;
+          var corners = this.getSqCorners(mysnek, closestFood);
+          var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
+          // record the move for next time
+          gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
+          return nextDirection;
+      } else if (state == 2 && mysnek_health > threshold) {
+          console.log("*** Still on the offensive");
+          //  If previous state was OFFENSIVE and health above threshold --> continue OFFENSIVE
+          gameState[gameId].state = 2;
+//      } else if (startDefensive) {
+//          //  If previous state was FEEDING start a DEFENSIVE play under the above conditions
+//          gameState[gameId].state = 1;
+//          var corners = this.getSqCorners(mysnek, closestFood);
+//          var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
+//          // record the move for next time
+//          gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
+//          return nextDirection;
+//      } else if (startOffensive) {
+//          //  If previous state was FEEDING start an OFFENSIVE play under the above conditions
+//          gameState[gameId].state = 2;
+//          console.log("*** get offensive: " + startOffensive);
       }
-      //  FEEDING
-      //  ALways unless on defense or the offensive
-      //  If previous state was DEFENSIVE and health < threshold
-      //  If previous state was OFFENSIVE and health < threshold
-      else if (_.size(safestPath)>0) {
+      else if (_.size(safestPath) > 0) {
+        //  ALWAYS FEEDING
+        //  UNLESS on defensive or the offensive
+        //  If previous state was DEFENSIVE and health < threshold
+        //  If previous state was OFFENSIVE and health < threshold
+        console.log("*** Still FEEDING");
         gameState[gameId].state = 0;
         var nextDirection = this.getDirection(mysnek_head, [closestFood[0].x, closestFood[0].y]);
         // record the move for next time
@@ -245,51 +269,31 @@ var gameboard = {
       // record the move for next time
       gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
       return nextDirection;
-/*
-      if (state == 0 && dist == 1 and health > defensiveThreshold) {
-          // call to function defining square formation and deciding next move to enter circling state
-          move = getSqCorners(snake, closeFood)
-          print "sqCorners in 1st branch: ", sqCorners
-          gameState[gameId].state = 1
-      } else if (state == 1 and health > threshold) {
-          // call to function deciding next move in circling state
-          move = getDefMove(snake, sqCorners)
-          print "sqCorners in 2nd branch: ", sqCorners
-          gameState[gameId].state = 1
-      } else { // state == 0:
-          // call to function deciding next move in finding food state
-          // move = getDirection(snake) #TODO: replace w/ logic
-          move = getSeekMove(snake, data)
-          gameState[gameId].state = 0
-          // move = getOffMove(snakeHead, closeFood)
-      }
-*/
   },
 
-  numberOfMovesToDefend: function(snakes, mysnake, food) {
+  numberOfMovesToDefend: function(snakes, mysnake, pellet) {
       var head = mysnake.coords[0];
       // we only count two sides as long as our snake defends in the direction of the other snake
       var squareLength = (this.getSqSideLen(this.getSnakeLen(mysnake))-1)*2;
 
-      var snakesByDistance = this.getSnakesByDistance(snakes, food);
+      var snakesByDistance = this.getSnakesByDistance(snakes, pellet);
       var closestSnake = snakesByDistance[0];
 
-      var corners = this.getSqCorners(mysnake, food);
+      var corners = this.getSqCorners(mysnake, pellet);
       var closestCorner = this.findClosest(corners, head);
       // account for the closest corner as minus one
       return this.getDistance(closestCorner, head) + squareLength - 1;
-          
   },
 
   /**
    * Search for shortest path to all food pellets.
    * Returns a sorted list of paths to each food pellet.
    */
-  closestPathsToFood: function(grid, mysnek, food, snakes) {
+  closestPathsToFood: function(grid, mysnek, foods, snakes) {
       var head = mysnek.coords[0];
       var path = [];
       var tentatives = new Array();
-      food.forEach(function(pellet) {
+      foods.forEach(function(pellet) {
          var tentative = astar.search(grid, head, pellet);
 
           if (!tentative) return;
@@ -304,6 +308,38 @@ var gameboard = {
       });
 
       return tentatives.reverse();
+  },
+
+  /**
+   *  Get the move required to keep the snake in a defensive square formation around a food item
+   */
+  getDefensiveMove: function(snake, sqCorners, closestSnake) {
+      var snakeHead = snake['coords'][0];
+      var direction = this.getDirection(snake);
+      var headIndex = _.indexOf(sqCorners, snakeHead);
+      if (headIndex > -1) {
+          // lets find out which direction the snake is turning
+          // let's see if we have traversed more than one corner
+          var filteredCorners = _.filter(sqCorners, function(corner) {return _.indexOf(snake.coords, corner) > -1});
+          if (_.size(filteredCorners) > 1) {
+              // let's sort the traversed corners by their index in our snake coords
+              var sortedCorners = _.sort(filteredCorners, function(corner) {return _.indexOf(snake.coords, corner)});
+              var diff = headIndex - _.indexOf(sqCorners, sortedCorners[1]);
+              if (diff == -1 || diff == 3)
+              return turnLeft(direction);
+            return turnRight(direction);
+          }
+
+          // we're just hitting our first corner, have not traversed other corners yet
+          var left = sqCorners[(index + 3) % 4];
+          var right = sqCorners[(index + 1) % 4];
+          var enemy = closestSnake.coords[0];
+          if (this.getDistance(enemy, left) < this.getDistance(enemy, right))
+            return this.getDirection(snakeHead, left);
+          return this.getDirection(snakeHead, right);
+      }
+      // lets jsut keep going in the same direction
+      return direction;
   },
 
 /**
@@ -376,7 +412,7 @@ var gameboard = {
 
   sortSnakesByDistance: function(snakes, mysnake) {
     return _.sortBy(snakes, function(snake) {
-	return this.getDistance(mysnake, snake);
+      return this.getDistance(mysnake, snake);
     });
   },
 
@@ -416,12 +452,17 @@ var gameboard = {
   /**
    * Get the side length of the minimum incomplete square that can
    * be formed by a snake of length n
+   * 
    */
   getSqSideLen: function(n) {
-    var len = 1 + ((n+4)/4)
-    if (len < 3)
-        return 3;
-    return len
+      for (var i=1;i<9999;i++) {
+          var sidelen = i * 2 + 1;
+          // the n length must be one less the total square size
+          var sqLen = (sideLen-1)*4 - 1;
+          if (sqLen > n)
+            return sidelen;
+      }
+      return 3;
   },
 
   /**
@@ -430,7 +471,7 @@ var gameboard = {
    * assumes snake is 1 away from food
    */
   getSqCorners: function(snake, closeFood) {
-      var squareDim = this.getSqSideLen(getSnakeLen(snake));
+      var squareDim = (this.getSqSideLen(getSnakeLen(snake))-1)/2;
 
       var snakeHead = snake['coords'][0];
       var sX = snakeHead[0];
@@ -442,20 +483,22 @@ var gameboard = {
       var dx = cX - sX;
       var dy = cY - sY;
 
-      // food is right of head, closest corner is bottom left
-      if (dx == 1)
-          return [[sX,sY-squareDim+2], [sX+squareDim-1,sY-squareDim+2], [sX+squareDim-1, sY+1], [sX, sY+1]];
+      return [[cX-squareDim,cY-squareDim], [cX+squareDim,cY-squareDim], [cX+squareDim, cY+squareDim], [cX-squareDim, cY+squareDim]];
 
-      // food is left of head, closest corner is top right
-      if (dx == -1)
-          return [[sX-squareDim+1, sY-1], [sX, sY-1], [sX, sY+squareDim-2], [sX-squareDim+1, sY+squareDim-2]];
-
-      // food is below head, closest corner is top left
-      if (dy == 1)
-          return [[sX-1, sY], [sX+squareDim-2, sY], [sX+squareDim-2, sY+squareDim-1], [sX-1, sY+squareDim-1]];
-
-      // food is above head, closest corner is bottom right
-      return [[sX-squareDim+2, sY-squareDim+1], [sX+1, sY-squareDim+1], [sX+1, sY], [sX-squareDim+2, sY]];
+//      // food is right of head, closest corner is bottom left
+//      if (dx == 1)
+//          return [[sX,sY-squareDim+2], [sX+squareDim-1,sY-squareDim+2], [sX+squareDim-1, sY+1], [sX, sY+1]];
+//
+//      // food is left of head, closest corner is top right
+//      if (dx == -1)
+//          return [[sX-squareDim+1, sY-1], [sX, sY-1], [sX, sY+squareDim-2], [sX-squareDim+1, sY+squareDim-2]];
+//
+//      // food is below head, closest corner is top left
+//      if (dy == 1)
+//          return [[sX-1, sY], [sX+squareDim-2, sY], [sX+squareDim-2, sY+squareDim-1], [sX-1, sY+squareDim-1]];
+//
+//      // food is above head, closest corner is bottom right
+//      return [[sX-squareDim+2, sY-squareDim+1], [sX+1, sY-squareDim+1], [sX+1, sY], [sX-squareDim+2, sY]];
 
   },
 
@@ -589,139 +632,139 @@ module.exports = gameboard;
     print "state: ", state
     print "dist: ", dist
     if state == 0 and dist == 1 and health > threshold:
-	        // call to function defining square formation and deciding next move to enter circling state
-		sqCorners, move = getSqCorners(snake, closeFood)
-		print "sqCorners in 1st branch: ", sqCorners
-		state = 1
+              // call to function defining square formation and deciding next move to enter circling state
+            sqCorners, move = getSqCorners(snake, closeFood)
+            print "sqCorners in 1st branch: ", sqCorners
+            state = 1
     elif state == 1 and health > threshold:
-	        // call to function deciding next move in circling state
-		move = getDefMove(snake, sqCorners)
-		print "sqCorners in 2nd branch: ", sqCorners
-		state = 1
+              // call to function deciding next move in circling state
+            move = getDefMove(snake, sqCorners)
+            print "sqCorners in 2nd branch: ", sqCorners
+            state = 1
     else: #state == 0:
-	        // call to function deciding next move in finding food state
-	        // move = getDirection(snake) #TODO: replace w/ logic
-		move = getSeekMove(snake, data)
-		state = 0
-	        // move = getOffMove(snakeHead, closeFood)
+              // call to function deciding next move in finding food state
+              // move = getDirection(snake) #TODO: replace w/ logic
+            move = getSeekMove(snake, data)
+            state = 0
+              // move = getOffMove(snakeHead, closeFood)
   }
 
 
 def checkCollision(snake, data, move, **kwargs):
-	# move = 'up' | 'left' | 'down' | 'right'
-	# move translated to coordinates = [0, -1] | [-1, 0] | [0, 1] | [1, 0]
-	# return true or false
+      # move = 'up' | 'left' | 'down' | 'right'
+      # move translated to coordinates = [0, -1] | [-1, 0] | [0, 1] | [1, 0]
+      # return true or false
 
-	currentPos = snake['coords'][0]
-	#if 'currentPos' in kwargs:
-		#currentPos = kwargs['currentPos']
+      currentPos = snake['coords'][0]
+      #if 'currentPos' in kwargs:
+            #currentPos = kwargs['currentPos']
 
-	if move == 'up':
-		choice = [currentPos[0], currentPos[1] - 1]
-	elif move == 'down':
-		choice = [currentPos[0], currentPos[1] + 1]
-	elif move == 'right':
-		choice = [currentPos[0] + 1, currentPos[1]]
-	else:
-		choice = [currentPos[0] - 1, currentPos[1]]
+      if move == 'up':
+            choice = [currentPos[0], currentPos[1] - 1]
+      elif move == 'down':
+            choice = [currentPos[0], currentPos[1] + 1]
+      elif move == 'right':
+            choice = [currentPos[0] + 1, currentPos[1]]
+      else:
+            choice = [currentPos[0] - 1, currentPos[1]]
 
-	occupiedPositions = []
+      occupiedPositions = []
 
-	for s in data['snakes']: # all snakes
-  		for c in s['coords']:
-			occupiedPositions.append(c)
+      for s in data['snakes']: # all snakes
+              for c in s['coords']:
+                  occupiedPositions.append(c)
 
-	for s in range(data['width']): # north and south walls
-		occupiedPositions.append([s, -1])
-		occupiedPositions.append([s, data['height']])
+      for s in range(data['width']): # north and south walls
+            occupiedPositions.append([s, -1])
+            occupiedPositions.append([s, data['height']])
 
-  	for s in range(data['height']): # east and west walls
-  		occupiedPositions.append([-1, s])
-  		occupiedPositions.append([data['width'], s])
+        for s in range(data['height']): # east and west walls
+              occupiedPositions.append([-1, s])
+              occupiedPositions.append([data['width'], s])
 
-  	#if 'currentPos' not in kwargs:
-  		#occupiedPositions.append(checkEnclosure(data, snake, currentPos, occupiedPositions))
+        #if 'currentPos' not in kwargs:
+              #occupiedPositions.append(checkEnclosure(data, snake, currentPos, occupiedPositions))
 
-  	if choice in occupiedPositions:
-  		return True
-  	else:
-  		return False
+        if choice in occupiedPositions:
+              return True
+        else:
+              return False
 
 # Get an array of length 4 of the coordinates that define the defensive square: [top-left, top-right, bottom-right, bottom-left]
 def getSqCorners(snake, closeFood):
-	squareDim = getSqSideLen(getSnakeLen(snake))
+      squareDim = getSqSideLen(getSnakeLen(snake))
 
-	sX = snake['coords'][0][0]
-	sY = snake['coords'][0][1]
+      sX = snake['coords'][0][0]
+      sY = snake['coords'][0][1]
 
-	snakeHead = snake['coords'][0]
+      snakeHead = snake['coords'][0]
 
-	dx = closeFood[0] - snakeHead[0]
-	dy = closeFood[1] - snakeHead[1]
+      dx = closeFood[0] - snakeHead[0]
+      dy = closeFood[1] - snakeHead[1]
 
-	if dx == 1:
-		# food is right of head, closest corner is bottom left
-		return [[sX,sY-squareDim+2], [sX+squareDim-1,sY-squareDim+2], [sX+squareDim-1, sY+1], [sX, sY+1]], 'up'
-	elif dx == -1:
-		# food is left of head, closest corner is top right
-		return [[sX-squareDim+1, sY-1], [sX, sY-1], [sX, sY+squareDim-2], [sX-squareDim+1, sY+squareDim-2]], 'down'
-	elif dy == 1:
-		# food is below head, closest corner is top left
-		return [[sX-1, sY], [sX+squareDim-2, sY], [sX+squareDim-2, sY+squareDim-1], [sX-1, sY+squareDim-1]], 'right'
-	elif dy == -1:
-		# food is above head, closest corner is bottom right
-		return [[sX-squareDim+2, sY-squareDim+1], [sX+1, sY-squareDim+1], [sX+1, sY], [sX-squareDim+2, sY]], 'left'
+      if dx == 1:
+            # food is right of head, closest corner is bottom left
+            return [[sX,sY-squareDim+2], [sX+squareDim-1,sY-squareDim+2], [sX+squareDim-1, sY+1], [sX, sY+1]], 'up'
+      elif dx == -1:
+            # food is left of head, closest corner is top right
+            return [[sX-squareDim+1, sY-1], [sX, sY-1], [sX, sY+squareDim-2], [sX-squareDim+1, sY+squareDim-2]], 'down'
+      elif dy == 1:
+            # food is below head, closest corner is top left
+            return [[sX-1, sY], [sX+squareDim-2, sY], [sX+squareDim-2, sY+squareDim-1], [sX-1, sY+squareDim-1]], 'right'
+      elif dy == -1:
+            # food is above head, closest corner is bottom right
+            return [[sX-squareDim+2, sY-squareDim+1], [sX+1, sY-squareDim+1], [sX+1, sY], [sX-squareDim+2, sY]], 'left'
 
 
 # Get the move required to keep the snake in a defensive square formation around a food item
 def getDefMove(snake, sqCorners):
-	snakeHead = snake['coords'][0]
-	direction = getDirection(snake)
-	print "sqCorners in getDefMove: ", sqCorners
-	print "snakeHead: ", snakeHead
-	if snakeHead in sqCorners:
-		return turnRight(direction)
-	else:
-		return direction
+      snakeHead = snake['coords'][0]
+      direction = getDirection(snake)
+      print "sqCorners in getDefMove: ", sqCorners
+      print "snakeHead: ", snakeHead
+      if snakeHead in sqCorners:
+            return turnRight(direction)
+      else:
+            return direction
 
 #TODO: replace w/ better logic
 def getOffMove(snakeHead, closeFood):
-	if snakeHead[0] > closeFood[0]:
-		move = 'left'
-	elif snakeHead[0] < closeFood[0]:
-		move = 'right'
-	elif snakeHead[1] > closeFood[1]:
-		move = 'up'
-	elif snakeHead[1] < closeFood[1]:
-		move = 'down'
-	return move
+      if snakeHead[0] > closeFood[0]:
+            move = 'left'
+      elif snakeHead[0] < closeFood[0]:
+            move = 'right'
+      elif snakeHead[1] > closeFood[1]:
+            move = 'up'
+      elif snakeHead[1] < closeFood[1]:
+            move = 'down'
+      return move
 
 # Return a collision free move
 def desperation(snake, data, move):
-	opts = ['up', 'down', 'right', 'left']
-	opts.remove(move)
-	bad = []
-	for item in opts:
-		if checkCollision(snake, data, item) == True:
-			bad.append(item)
-	remove_common_elements(opts, bad)
-	if len(opts) > 0:
-		return random.choice(opts)
-	return 'left'
+      opts = ['up', 'down', 'right', 'left']
+      opts.remove(move)
+      bad = []
+      for item in opts:
+            if checkCollision(snake, data, item) == True:
+                  bad.append(item)
+      remove_common_elements(opts, bad)
+      if len(opts) > 0:
+            return random.choice(opts)
+      return 'left'
 
 
 # Find the closest piece of food in relation to position
 def closestFood(foodList, position):
-	closestFood = None
-	closestDist = 9999
+      closestFood = None
+      closestDist = 9999
 
-	for food in foodList:
-		dist = distance(food, position)
-		if dist < closestDist:
-			closestFood = food
-			closestDist = dist
+      for food in foodList:
+            dist = distance(food, position)
+            if dist < closestDist:
+                  closestFood = food
+                  closestDist = dist
 
-	return closestFood
+      return closestFood
 
 */
 
