@@ -206,6 +206,7 @@ var gameboard = {
           (state == 0) &&
           ((mysnek_len - this.getSnakeLen(closestSnake)) >= 2) &&
           (this.getDistance(closestSnake.coords[0], mysnek_head) <= 2);
+      console.log("*** get offensive: " + startOffensive);
 
       if (state == 1 && mysnek_health > defensiveThreshold) {
           console.log("*** Still on the defensive");
