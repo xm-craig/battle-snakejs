@@ -241,7 +241,7 @@ var gameboard = {
         //  If previous state was OFFENSIVE and health < threshold
         console.log("*** Still FEEDING");
         gameState[gameId].state = 0;
-        var nextDirection = this.getDirection(mysnek_head, [closestFood[0].x, closestFood[0].y]);
+        var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
         // record the move for next time
         gameState[gameId] = _.extend(gameState[gameId] || {}, {"move": nextDirection});
         return nextDirection;
