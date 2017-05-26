@@ -25,7 +25,7 @@ var gameboard = {
 
   initGame: function(data) {
     var snakes = data.snakes;
-    var food = data.food;
+    var foods = data.food;
 
     // if the server was restarted in the middle of game play, we recreate the gameState
     if (!gameState[data.game_id])
@@ -38,16 +38,16 @@ var gameboard = {
 
     var grid = this.matrix(data.height, data.width, SAFTEY);
 
-    if (snakes.length) {
+    if (_.size(snakes) > 0) {
         snakes.forEach(function(snek) {
           snek['coords'].forEach(function(coord) {
             grid[coord[0]][coord[1]] = SNAKE;
           })
         })
     }
-    if (food.length) {
-        //console.log(food)
-        food.forEach(function(f) {
+      if (_.size(foods) > 0) {
+        //console.log(foods)
+        foods.forEach(function(f) {
             grid[f[0]][f[1]] = FOOD;
         })
     }

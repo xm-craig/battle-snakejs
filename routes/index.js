@@ -41,8 +41,8 @@ router.post('/start', function (req, res) {
 
     // Response data
     var data = {
-      color: "#DDFF00",
-      secondary_color: "#00D5FB",
+      color: "#4A0000",
+      secondary_color: "#007F96",
       name: "FriskySnake",
       head_url: "http://www.blogcdn.com/www.aoltv.com/media/2007/04/fdrisksyss.gif",
       taunt: "Let's do thisss thang!",
