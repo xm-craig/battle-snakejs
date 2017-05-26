@@ -307,7 +307,7 @@ var gameboard = {
           paths.push(path);
       });
 
-      return _.sort(paths, function(path) {return _.size(path)});
+      return _.sortBy(paths, function(path) {return _.size(path)});
   },
 
   /**
@@ -323,7 +323,7 @@ var gameboard = {
           var filteredCorners = _.filter(sqCorners, function(corner) {return _.indexOf(snake.coords, corner) > -1});
           if (_.size(filteredCorners) > 1) {
               // let's sort the traversed corners by their index in our snake coords
-              var sortedCorners = _.sort(filteredCorners, function(corner) {return _.indexOf(snake.coords, corner)});
+              var sortedCorners = _.sortBy(filteredCorners, function(corner) {return _.indexOf(snake.coords, corner)});
               var diff = headIndex - _.indexOf(sqCorners, sortedCorners[1]);
               if (diff == -1 || diff == 3)
               return turnLeft(direction);
