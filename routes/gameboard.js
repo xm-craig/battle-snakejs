@@ -244,7 +244,7 @@ var gameboard = {
         console.log("*** Still FEEDING");
         gameState[gameId].state = 0;
         console.log("*** my head: " + mysnek_head);
-        console.log("*** safest path: " + safestPath);
+        console.log("*** safest path: " + safestPath[0]);
 
         var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
         // record the move for next time
@@ -307,7 +307,7 @@ var gameboard = {
           if (gameboard.collisonCheck(mysnek, snakes, pellet)) return;
           // find shortest path
           var path = astar.search(grid, head, pellet);
-          console.log("****** new path: " + path);
+          //console.log("****** new path: " + path);
           if (!path) return;
           // save as a potential goal
           paths.push(path);
@@ -359,8 +359,12 @@ var gameboard = {
   },
 
   getDirection: function(from_cell, to_cell) {
+        console.log("*** from_cell: " + from_cell);
+        console.log("*** to_cell: " + to_cell);
     var dx = to_cell[0] - from_cell[0];
     var dy = to_cell[1] - from_cell[1];
+        console.log("*** dx: " + dx);
+        console.log("*** dy: " + dy);
 
     if (dx == 1)
         return 'right'
