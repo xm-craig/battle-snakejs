@@ -245,9 +245,11 @@ var gameboard = {
         gameState[gameId].state = 0;
         console.log("*** my head: " + mysnek_head);
         console.log("*** safest path: " + safestPath);
+
         var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
         // record the move for next time
         gameState[gameId].move = nextDirection;
+        console.log("*** next move: " + nextDirection);
         return nextDirection;
       }
 
@@ -274,6 +276,7 @@ var gameboard = {
       var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
       // record the move for next time
       gameState[gameId].move = nextDirection;
+      console.log("*** next move 2: " + nextDirection);
       return nextDirection;
   },
 
