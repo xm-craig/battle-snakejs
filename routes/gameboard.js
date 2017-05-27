@@ -307,6 +307,7 @@ var gameboard = {
           if (gameboard.collisonCheck(mysnek, snakes, pellet)) return;
           // find shortest path
           var path = astar.search(grid, head, pellet);
+          console.log("****** new path: " + path);
           if (!path) return;
           // save as a potential goal
           paths.push(path);
