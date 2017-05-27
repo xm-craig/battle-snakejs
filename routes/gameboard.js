@@ -301,7 +301,7 @@ var gameboard = {
   closestPathsToFood: function(grid, mysnek, foods, snakes) {
       var gameboard = this;
       var head = mysnek.coords[0];
-      //var paths = new Array();
+      var paths = new Array();
       var pellets = _.sortBy(foods, function(pellet) {return gameboard.getDistance(head, pellet)});
       pellets.forEach(function(pellet) {
           // avoid food where other snakes are closer, or are larger than us
@@ -311,10 +311,10 @@ var gameboard = {
           console.log("****** new path: " + path);
           if (!path) return;
           // save as a potential goal
-          return path;
+          paths.push(path);
       });
 
-      return [];//_.sortBy(paths, function(path) {return _.size(path)});
+      return paths[0];//_.sortBy(paths, function(path) {return _.size(path)});
   },
 
   /**
