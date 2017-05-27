@@ -167,6 +167,7 @@ var gameboard = {
 
       // a sorted list of possible paths to each accessible food pellet
       var safestPath = this.closestPathsToFood(grid, mysnek, foods, otherSnakes);
+   console.log("*** *** safest path: " + safestPath);
       var closestFood = this.findClosest(foods, mysnek_head);
       var closestSnake = snakesByDistance[0];
       var smallestSnake = snakesBySize[0];
@@ -244,7 +245,6 @@ var gameboard = {
           console.log("*** Still FEEDING");
           gameState[gameId].state = 0;
           console.log("*** my head: " + mysnek_head);
-          console.log("*** *** asafest path: " + safestPath[0]);
 
           var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
           // record the move for next time
@@ -261,7 +261,7 @@ var gameboard = {
       }
       if (!safestPath || !(_.size(safestPath) > 0)) {
           console.log('*** no path to any food or the middle so lets chase our tail');
-          safestPath = astar.search(grid, mysnek_head, mysnek_coords[mysnek_coords.length-1]);
+          safestPath = astar.search(grid, mysnek_head, mysnek.coords[mysnek.coords.length-1]);
           despair = !safestPath || !(_.size(safestPath) > 0);
       }
 
@@ -360,12 +360,8 @@ var gameboard = {
   },
 
   getDirection: function(from_cell, to_cell) {
-        console.log("*** from_cell: " + from_cell);
-        console.log("*** to_cell: " + to_cell);
     var dx = to_cell[0] - from_cell[0];
     var dy = to_cell[1] - from_cell[1];
-        console.log("*** dx: " + dx);
-        console.log("*** dy: " + dy);
 
     if (dx == 1)
         return 'right'
