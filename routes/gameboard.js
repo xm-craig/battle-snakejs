@@ -89,7 +89,7 @@ var gameboard = {
       var path = [];
       var tentatives = new Array();
       food.forEach(function(pellet) {
-         var tentative = astar.search(grid, mysnek_head, pellet);
+          var tentative = astar.search(grid, mysnek_head, pellet);
           if (!tentative) {
               //console.log("**** no path to food pellet");
               return;
@@ -147,9 +147,9 @@ var gameboard = {
 
       var gameId = data['game_id'];
       var snakes = data['snakes'];
-      var food = data['food'];
+      var foods = data['food'];
       var snakeCount = _.size(snakes);
-      var foodCount = _.size(food);
+      var foodCount = _.size(foods);
 
       // initialize the grid
       var grid = this.initGame(data);
@@ -166,8 +166,8 @@ var gameboard = {
       var snakesByDistance = this.getSnakesByDistance(otherSnakes, mysnek);
 
       // a sorted list of possible paths to each accessible food pellet
-      var safestPath = this.closestPathsToFood(grid, mysnek, food, otherSnakes);
-      var closestFood = this.findClosest(food, mysnek_head);
+      var safestPath = this.closestPathsToFood(grid, mysnek, foods, otherSnakes);
+      var closestFood = this.findClosest(foods, mysnek_head);
       var closestSnake = snakesByDistance[0];
       var smallestSnake = snakesBySize[0];
 
