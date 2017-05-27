@@ -312,7 +312,7 @@ var gameboard = {
           paths.push(path);
       });
 
-      return _.sortBy(paths, function(path) {return _.size(path)});
+      return paths;//_.sortBy(paths, function(path) {return _.size(path)});
   },
 
   /**
@@ -417,7 +417,7 @@ var gameboard = {
   getSnakesByDistance: function(snakes, target) {
     var gameboard = this;
     return _.sortBy(snakes, function(snake) {
-      return gameboard.getDistance(target, snake);
+      return gameboard.getDistance(target, snake.coords[0]);
     });
   },
 
