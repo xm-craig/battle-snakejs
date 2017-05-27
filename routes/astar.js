@@ -1,5 +1,3 @@
-var _            = require('underscore');
-
 function pathTo(node) {
   var curr = node;
   var path = [];

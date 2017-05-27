@@ -237,25 +237,25 @@ var gameboard = {
 //          return nextDirection;
       }
       else if (state == 0 && _.size(safestPath) > 0) {
-        //  ALWAYS FEEDING
-        //  UNLESS on defensive or the offensive
-        //  If previous state was DEFENSIVE and health < threshold
-        //  If previous state was OFFENSIVE and health < threshold
-        console.log("*** Still FEEDING");
-        gameState[gameId].state = 0;
-        console.log("*** my head: " + mysnek_head);
-        console.log("*** safest path: " + safestPath[0]);
+          //  ALWAYS FEEDING
+          //  UNLESS on defensive or the offensive
+          //  If previous state was DEFENSIVE and health < threshold
+          //  If previous state was OFFENSIVE and health < threshold
+          console.log("*** Still FEEDING");
+          gameState[gameId].state = 0;
+          console.log("*** my head: " + mysnek_head);
+          console.log("*** *** asafest path: " + safestPath[0]);
 
-        var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
-        // record the move for next time
-        gameState[gameId].move = nextDirection;
-        console.log("*** next move: " + nextDirection);
-        return nextDirection;
+          var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
+          // record the move for next time
+          gameState[gameId].move = nextDirection;
+          console.log("*** next move: " + nextDirection);
+          return nextDirection;
       }
 
       // if there are no paths to food pellets then head to the middle or chase our tail
       var despair = false;
-      if (!safestPath) {
+      if (!safestPath || !(_.size(safestPath) > 0)) {
           console.log('*** no path to any food so lets head for the middle');
           safestPath = astar.search(grid, mysnek_head, gameState[gameId].middle);
       }
@@ -301,8 +301,9 @@ var gameboard = {
   closestPathsToFood: function(grid, mysnek, foods, snakes) {
       var gameboard = this;
       var head = mysnek.coords[0];
-      var paths = new Array();
-      foods.forEach(function(pellet) {
+      //var paths = new Array();
+      var pellets = _.sortBy(foods, function(pellet) {return gameboard.getDistance(head, pellet)});
+      pellets.forEach(function(pellet) {
           // avoid food where other snakes are closer, or are larger than us
           if (gameboard.collisonCheck(mysnek, snakes, pellet)) return;
           // find shortest path
@@ -310,10 +311,10 @@ var gameboard = {
           //console.log("****** new path: " + path);
           if (!path) return;
           // save as a potential goal
-          paths.push(path);
+          return path;
       });
 
-      return paths;//_.sortBy(paths, function(path) {return _.size(path)});
+      return [];//_.sortBy(paths, function(path) {return _.size(path)});
   },
 
   /**
