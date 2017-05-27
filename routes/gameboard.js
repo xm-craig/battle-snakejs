@@ -308,7 +308,7 @@ var gameboard = {
           if (gameboard.collisonCheck(mysnek, snakes, pellet)) return;
           // find shortest path
           var path = astar.search(grid, head, pellet);
-          //console.log("****** new path: " + path);
+          console.log("****** new path: " + path);
           if (!path) return;
           // save as a potential goal
           return path;
@@ -604,8 +604,8 @@ var gameboard = {
       snakes.forEach(function(enemy) {
           if (enemy.name == mysnek.name)
               return;
-          if (path_length >= gameboard.getDistance(enemy['coords'][0], food) &&
-              mysnek_length < gameboard.getSnakeLen(enemy))
+          if ((path_length >= gameboard.getDistance(enemy['coords'][0], food)) &&
+              (mysnek_length < gameboard.getSnakeLen(enemy)))
               dead = true;
       })
       return dead;
