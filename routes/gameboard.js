@@ -196,7 +196,7 @@ var gameboard = {
           (_.size(safestPath) > 0) &&
           (mysnek_health > smallestSnake.health_points) &&
           (numberOfDefensiveMoves < mysnek_health) &&
-	  areSqCornersOnBoard(mysnek, closestFood, data.width, data.height) &&
+	  this.areSqCornersOnBoard(mysnek, closestFood, data.width, data.height) &&
           (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood));
 //console.log("*** get defensive: " + startDefensive);
 
@@ -237,7 +237,7 @@ console.log("*** next move: " + nextDirection);
       console.log("*** *** *** " + (snakeCount > foodCount));
       console.log("*** *** *** " + (_.size(safestPath) > 0));
       console.log("*** *** *** " + (mysnek_health > smallestSnake.health_points));
-      console.log("*** *** *** onboard: " + areSqCornersOnBoard(mysnek, closestFood, data.width, data.height));
+      console.log("*** *** *** onboard: " + this.areSqCornersOnBoard(mysnek, closestFood, data.width, data.height));
       console.log("*** *** *** " + (numberOfDefensiveMoves < mysnek_health));
       console.log("*** *** *** " + (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood)));
           gameState[gameId].state = 1;
