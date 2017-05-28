@@ -166,7 +166,7 @@ var gameboard = {
 
       // a sorted list of possible paths to each accessible food pellet
       var safestPath = this.closestPathsToFood(grid, mysnek, foods, otherSnakes);
-console.log("*** *** safest path: " + safestPath);
+//console.log("*** *** safest path: " + safestPath);
       var closestFood = this.findClosest(foods, mysnek_head);
       var closestSnake = snakesByDistance[0];
 console.log("*** *** closest snake: " + JSON.stringify(closestSnake));
@@ -189,14 +189,6 @@ console.log("*** *** smallest snake: " + JSON.stringify(smallestSnake));
       //  and number of moves to defend is less than my health
       //  and number of moves to defend is less than the closest enemy snake to the food
       var numberOfDefensiveMoves = this.numberOfMovesToDefend(otherSnakes, mysnek, closestFood);
-      console.log("*** moves to defend: " + numberOfDefensiveMoves);
-
-      console.log("*** *** *** " + (state == 0));
-      console.log("*** *** *** " + (snakeCount > foodCount));
-      console.log("*** *** *** " + (_.size(safestPath) > 0));
-      console.log("*** *** *** " + (mysnek_health > smallestSnake.health_points));
-      console.log("*** *** *** " + (numberOfDefensiveMoves < mysnek_health));
-      console.log("*** *** *** " + (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood)));
 
       var startDefensive =
           (state == 0) &&
@@ -223,6 +215,7 @@ console.log("*** *** smallest snake: " + JSON.stringify(smallestSnake));
           //  If previous state was DEFENSIVE and health above threshold --> continue DEFENSIVE
           gameState[gameId].state = 1;
           var corners = this.getSqCorners(mysnek, closestFood);
+      console.log("*** *** *** corners: " + corners);
           var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
           // record the move for next time
 console.log("*** next move: " + nextDirection);
@@ -238,8 +231,16 @@ console.log("*** next move: " + nextDirection);
           return nextDirection;
       } else if (startDefensive) {
           //  If previous state was FEEDING start a DEFENSIVE play under the above conditions
+      console.log("*** moves to defend: " + numberOfDefensiveMoves);
+      console.log("*** *** *** " + (state == 0));
+      console.log("*** *** *** " + (snakeCount > foodCount));
+      console.log("*** *** *** " + (_.size(safestPath) > 0));
+      console.log("*** *** *** " + (mysnek_health > smallestSnake.health_points));
+      console.log("*** *** *** " + (numberOfDefensiveMoves < mysnek_health));
+      console.log("*** *** *** " + (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood)));
           gameState[gameId].state = 1;
           var corners = this.getSqCorners(mysnek, closestFood);
+      console.log("*** *** *** corners: " + corners);
           var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
           // record the move for next time
           gameState[gameId].move = nextDirection;
@@ -253,7 +254,7 @@ console.log("*** next move: " + nextDirection);
 console.log("*** next move: " + nextDirection);
           return nextDirection;
       }
-      else if (state == 0 && _.size(safestPath) > 0) {
+      else if (_.size(safestPath) > 0) {
           //  ALWAYS FEEDING
           //  UNLESS on defensive or the offensive
           //  If previous state was DEFENSIVE and health < threshold
@@ -289,6 +290,7 @@ console.log("*** next move: " + nextDirection);
           safestPath = [ this.findSafestNeighbour(mysnek_head, grid) ];
       }
 
+      gameState[gameId].state = 0;
       var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
       // record the move for next time
       gameState[gameId].move = nextDirection;
@@ -324,7 +326,6 @@ console.log("*** next move: " + nextDirection);
           if (gameboard.collisonCheck(mysnek, snakes, pellet)) return;
           // find shortest path
           var path = astar.search(grid, head, pellet);
-          console.log("****** new path: " + path);
           if (!path) return;
           // save as a potential goal
           paths.push(path);
