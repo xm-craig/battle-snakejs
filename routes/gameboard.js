@@ -170,9 +170,9 @@ var gameboard = {
    console.log("*** *** safest path: " + safestPath);
       var closestFood = this.findClosest(foods, mysnek_head);
       var closestSnake = snakesByDistance[0];
-   console.log("*** *** closest snake: " + closestSnake);
+      console.log("*** *** closest snake: " + JSON.stringify(closestSnake));
       var smallestSnake = snakesBySize[0];
-   console.log("*** *** smallest snake: " + smallestSnake);
+   console.log("*** *** smallest snake: " + JSON.stringify(smallestSnake));
 
       //  Determine the threshold of when to move to food
       var threshold = 40; // number of moves to obtain the next food pellet
@@ -355,7 +355,7 @@ var gameboard = {
             return this.getDirection(snakeHead, left);
           return this.getDirection(snakeHead, right);
       }
-      // lets jsut keep going in the same direction
+      // lets just keep going in the same direction
       return direction;
   },
 
