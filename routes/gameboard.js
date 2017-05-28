@@ -169,9 +169,9 @@ var gameboard = {
 //console.log("*** *** safest path: " + safestPath);
       var closestFood = this.findClosest(foods, mysnek_head);
       var closestSnake = snakesByDistance[0];
-console.log("*** *** closest snake: " + JSON.stringify(closestSnake));
+//console.log("*** *** closest snake: " + JSON.stringify(closestSnake));
       var smallestSnake = snakesBySize[0];
-console.log("*** *** smallest snake: " + JSON.stringify(smallestSnake));
+//console.log("*** *** smallest snake: " + JSON.stringify(smallestSnake));
 
       //  Determine the threshold of when to move to food
       var threshold = 40; // number of moves to obtain the next food pellet
@@ -197,7 +197,7 @@ console.log("*** *** smallest snake: " + JSON.stringify(smallestSnake));
           (mysnek_health > smallestSnake.health_points) &&
           (numberOfDefensiveMoves < mysnek_health) &&
           (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood));
-      console.log("*** get defensive: " + startDefensive);
+//console.log("*** get defensive: " + startDefensive);
 
       //  OFFENSIVE MOVE
       //  If previous state was FEEDING
@@ -208,14 +208,14 @@ console.log("*** *** smallest snake: " + JSON.stringify(smallestSnake));
           (state == 0) &&
           ((mysnek_len - this.getSnakeLen(closestSnake)) >= 2) &&
           (this.getDistance(closestSnake.coords[0], mysnek_head) <= 2);
-      console.log("*** get offensive: " + startOffensive);
+//console.log("*** get offensive: " + startOffensive);
 
       if (state == 1 && mysnek_health > defensiveThreshold) {
           console.log("*** Still on the defensive");
           //  If previous state was DEFENSIVE and health above threshold --> continue DEFENSIVE
           gameState[gameId].state = 1;
           var corners = this.getSqCorners(mysnek, closestFood);
-      console.log("*** *** *** corners: " + corners);
+console.log("*** *** *** corners: " + corners);
           var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
           // record the move for next time
 console.log("*** next move: " + nextDirection);
@@ -248,6 +248,10 @@ console.log("*** next move: " + nextDirection);
           return nextDirection;
       } else if (startOffensive) {
           //  If previous state was FEEDING start an OFFENSIVE play under the above conditions
+console.log("*** *** *** " + (state == 0));
+console.log("*** *** *** " + ((mysnek_len - this.getSnakeLen(closestSnake)) >= 2));
+console.log("*** *** *** " + (this.getDistance(closestSnake.coords[0], mysnek_head) <= 2));
+
           gameState[gameId].state = 2;
           var nextDirection = this.getOffensiveMove(grid, mysnek, closestSnake);
           gameState[gameId].move = nextDirection;
@@ -340,14 +344,20 @@ console.log("*** next move: " + nextDirection);
   getDefensiveMove: function(snake, sqCorners, closestSnake) {
       var snakeHead = snake['coords'][0];
       var direction = this.getSnakesDirection(snake);
+
+      var traversedCorners = _.intersection(sqCorners, snake['coords']);
+      if (!traversedCorners) {
+        var path = astar.search(grid, myhead, target);
+        return this.getDirection(myhead, path[0]);
+      }
+      // 
       var headIndex = _.indexOf(sqCorners, snakeHead);
       if (headIndex > -1) {
           // lets find out which direction the snake is turning
           // let's see if we have traversed more than one corner
-          var filteredCorners = _.filter(sqCorners, function(corner) {return _.indexOf(snake.coords, corner) > -1});
-          if (_.size(filteredCorners) > 1) {
+          if (_.size(traversedCorners) > 1) {
               // let's sort the traversed corners by their index in our snake coords
-              var sortedCorners = _.sortBy(filteredCorners, function(corner) {return _.indexOf(snake.coords, corner)});
+              var sortedCorners = _.sortBy(traversedCorners, function(corner) {return _.indexOf(snake.coords, corner)});
               var diff = headIndex - _.indexOf(sqCorners, sortedCorners[1]);
               if (diff == -1 || diff == 3)
               return turnLeft(direction);
@@ -362,7 +372,7 @@ console.log("*** next move: " + nextDirection);
             return this.getDirection(snakeHead, left);
           return this.getDirection(snakeHead, right);
       }
-      // lets just keep going in the same direction
+      // we're in defensive mode, lets just keep going in the same direction
       return direction;
   },
 
