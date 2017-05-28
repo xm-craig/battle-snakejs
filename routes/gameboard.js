@@ -189,6 +189,14 @@ var gameboard = {
       //  and number of moves to defend is less than the closest enemy snake to the food
       var numberOfDefensiveMoves = this.numberOfMovesToDefend(otherSnakes, mysnek, closestFood);
       console.log("*** moves to defend: " + numberOfDefensiveMoves);
+
+      console.log("*** *** *** " + (state == 0));
+      console.log("*** *** *** " + (snakeCount > foodCount));
+      console.log("*** *** *** " + (_.size(safestPath) > 0));
+      console.log("*** *** *** " + (mysnek_health > smallestSnake.health));
+      console.log("*** *** *** " + (numberOfDefensiveMoves < mysnek_health));
+      console.log("*** *** *** " + (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood)));
+
       var startDefensive =
           (state == 0) &&
           (snakeCount > foodCount) &&
