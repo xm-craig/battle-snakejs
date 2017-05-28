@@ -232,7 +232,7 @@ console.log("*** next move: " + nextDirection);
           console.log("*** Still on the offensive");
           //  If previous state was OFFENSIVE and health above threshold --> continue OFFENSIVE
           gameState[gameId].state = 2;
-          var nextDirection = this.getOffensiveMove(mysnek, closestSnake);
+          var nextDirection = this.getOffensiveMove(grid, mysnek, closestSnake);
           gameState[gameId].move = nextDirection;
 console.log("*** next move: " + nextDirection);
           return nextDirection;
@@ -248,7 +248,7 @@ console.log("*** next move: " + nextDirection);
       } else if (startOffensive) {
           //  If previous state was FEEDING start an OFFENSIVE play under the above conditions
           gameState[gameId].state = 2;
-          var nextDirection = this.getOffensiveMove(mysnek, closestSnake);
+          var nextDirection = this.getOffensiveMove(grid, mysnek, closestSnake);
           gameState[gameId].move = nextDirection;
 console.log("*** next move: " + nextDirection);
           return nextDirection;
