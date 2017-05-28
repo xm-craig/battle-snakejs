@@ -226,26 +226,33 @@ var gameboard = {
           var corners = this.getSqCorners(mysnek, closestFood);
           var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
           // record the move for next time
+console.log("*** next move: " + nextDirection);
           gameState[gameId].move = nextDirection;
           return nextDirection;
       } else if (state == 2 && mysnek_health > threshold) {
           console.log("*** Still on the offensive");
           //  If previous state was OFFENSIVE and health above threshold --> continue OFFENSIVE
           gameState[gameId].state = 2;
-//      } else if (startDefensive) {
-//          //  If previous state was FEEDING start a DEFENSIVE play under the above conditions
-//          gameState[gameId].state = 1;
-//          var corners = this.getSqCorners(mysnek, closestFood);
-//          var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
-//          // record the move for next time
-//          gameState[gameId].move = nextDirection;
-//          return nextDirection;
-//      } else if (startOffensive) {
-//          //  If previous state was FEEDING start an OFFENSIVE play under the above conditions
-//          gameState[gameId].state = 2;
-//          console.log("*** get offensive: " + startOffensive);
-//          gameState[gameId].move = nextDirection;
-//          return nextDirection;
+          var nextDirection = this.getOffensiveMove(mysnek, closestSnake);
+          gameState[gameId].move = nextDirection;
+console.log("*** next move: " + nextDirection);
+          return nextDirection;
+      } else if (startDefensive) {
+          //  If previous state was FEEDING start a DEFENSIVE play under the above conditions
+          gameState[gameId].state = 1;
+          var corners = this.getSqCorners(mysnek, closestFood);
+          var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
+          // record the move for next time
+          gameState[gameId].move = nextDirection;
+console.log("*** next move: " + nextDirection);
+          return nextDirection;
+      } else if (startOffensive) {
+          //  If previous state was FEEDING start an OFFENSIVE play under the above conditions
+          gameState[gameId].state = 2;
+          var nextDirection = this.getOffensiveMove(mysnek, closestSnake);
+          gameState[gameId].move = nextDirection;
+console.log("*** next move: " + nextDirection);
+          return nextDirection;
       }
       else if (state == 0 && _.size(safestPath) > 0) {
           //  ALWAYS FEEDING
@@ -254,12 +261,12 @@ var gameboard = {
           //  If previous state was OFFENSIVE and health < threshold
           console.log("*** Still FEEDING");
           gameState[gameId].state = 0;
-          console.log("*** my head: " + mysnek_head);
+//console.log("*** my head: " + mysnek_head);
 
           var nextDirection = this.getDirection(mysnek_head, [safestPath[0].x, safestPath[0].y]);
           // record the move for next time
           gameState[gameId].move = nextDirection;
-          console.log("*** next move: " + nextDirection);
+console.log("*** next move: " + nextDirection);
           return nextDirection;
       }
 
@@ -328,7 +335,7 @@ var gameboard = {
   },
 
   /**
-   *  Get the move required to keep the snake in a defensive square formation around a food item
+   *  Get the move required to keep our snake in a defensive square formation around a food item
    */
   getDefensiveMove: function(snake, sqCorners, closestSnake) {
       var snakeHead = snake['coords'][0];
@@ -357,6 +364,16 @@ var gameboard = {
       }
       // lets just keep going in the same direction
       return direction;
+  },
+
+  /**
+   *  Get the move required to kill the other snake. This only ever happens when it's close enough.
+   */
+  getOffensiveMove: function(grid, mysnake, closestSnake) {
+      var myhead = mysnake['coords'][0];
+      var target = closestSnake['coords'][0];
+      var path = astar.search(grid, myhead, target);
+      return this.getDirection(myhead, path[0]);
   },
 
 /**
