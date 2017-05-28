@@ -558,7 +558,7 @@ console.log("*** next move: " + nextDirection);
 	  return false;
       if (_.max(corners, function(corner) {return corner[0]}) > width)
 	  return false;
-      if (_.max(corners, function(corner) {return corner[1]}) > heigth)
+      if (_.max(corners, function(corner) {return corner[1]}) > height)
 	  return false;
       return true;
   },
