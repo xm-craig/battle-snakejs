@@ -196,6 +196,7 @@ var gameboard = {
           (_.size(safestPath) > 0) &&
           (mysnek_health > smallestSnake.health_points) &&
           (numberOfDefensiveMoves < mysnek_health) &&
+	  areSqCornersOnBoard(mysnek, closestFood, data.width, data.height) &&
           (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood));
 //console.log("*** get defensive: " + startDefensive);
 
@@ -236,6 +237,7 @@ console.log("*** next move: " + nextDirection);
       console.log("*** *** *** " + (snakeCount > foodCount));
       console.log("*** *** *** " + (_.size(safestPath) > 0));
       console.log("*** *** *** " + (mysnek_health > smallestSnake.health_points));
+      console.log("*** *** *** onboard: " + areSqCornersOnBoard(mysnek, closestFood, data.width, data.height));
       console.log("*** *** *** " + (numberOfDefensiveMoves < mysnek_health));
       console.log("*** *** *** " + (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood)));
           gameState[gameId].state = 1;
@@ -347,8 +349,10 @@ console.log("*** next move: " + nextDirection);
 
       var traversedCorners = _.intersection(sqCorners, snake['coords']);
       if (!traversedCorners) {
-        var path = astar.search(grid, myhead, target);
-        return this.getDirection(myhead, path[0]);
+          var target = this.findClosest(sqCorners, snakeHead);
+          var path = astar.search(grid, myhead, target);
+          console.log("heading for a corner: " + path);
+          return this.getDirection(myhead, path[0]);
       }
       // 
       var headIndex = _.indexOf(sqCorners, snakeHead);
@@ -526,11 +530,11 @@ console.log("*** next move: " + nextDirection);
       var cX = closeFood[0];
       var cY = closeFood[1];
 
-      var dx = cX - sX;
-      var dy = cY - sY;
-
       return [[cX-squareDim,cY-squareDim], [cX+squareDim,cY-squareDim], [cX+squareDim, cY+squareDim], [cX-squareDim, cY+squareDim]];
 
+//      var dx = cX - sX;
+//      var dy = cY - sY;
+//
 //      // food is right of head, closest corner is bottom left
 //      if (dx == 1)
 //          return [[sX,sY-squareDim+2], [sX+squareDim-1,sY-squareDim+2], [sX+squareDim-1, sY+1], [sX, sY+1]];
@@ -546,6 +550,17 @@ console.log("*** next move: " + nextDirection);
 //      // food is above head, closest corner is bottom right
 //      return [[sX-squareDim+2, sY-squareDim+1], [sX+1, sY-squareDim+1], [sX+1, sY], [sX-squareDim+2, sY]];
 
+  },
+
+  areSqCornersOnBoard: function(snake, food, width, height) {
+      var corners = this.getSqCorners(snake, food);
+      if (_.min(corners) < 0)
+	  return false;
+      if (_.max(corners, function(corner) {return corner[0]}) > width)
+	  return false;
+      if (_.max(corners, function(corner) {return corner[1]}) > heigth)
+	  return false;
+      return true;
   },
 
   // is N left of P
