@@ -353,7 +353,7 @@ console.log("*** next move: " + nextDirection);
           var target = this.findClosest(sqCorners, snakeHead);
           var path = astar.search(grid, snakeHead, target);
           console.log("heading for a corner: " + path);
-          return this.getDirection(myhead, [path[0].x, path[0].y]);
+          return this.getDirection(snakeHead, [path[0].x, path[0].y]);
       }
       // 
       var headIndex = _.indexOf(sqCorners, snakeHead);
