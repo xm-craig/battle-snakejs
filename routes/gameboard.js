@@ -391,11 +391,15 @@ console.log("*** next move: " + nextDirection);
    *  Get the move required to kill the other snake. This only ever happens when it's close enough.
    */
   getOffensiveMove: function(grid, mysnake, closestSnake) {
-      var myhead = mysnake['coords'][0];
+      var head = mysnake['coords'][0];
+console.log("*** OFF - head: " + head)
+
       var target = closestSnake['coords'][0];
-console.log("*** OFF - head: " + myhead)
-console.log("*** OFF - target: " + target)
-      var path = astar.search(grid, myhead, target);
+      var possibleMoves = this.findSafestNeighbours(target, grid);      
+      var closesttarget = this.findClosest(possibleMoves, head)
+console.log("*** OFF - target: " + closesttarget)
+
+      var path = astar.search(grid, head, target);
 console.log("*** OFF - path: " + path)
       return this.getDirection(myhead, [path[0].x, path[0].y]);
   },
@@ -435,6 +439,35 @@ console.log("*** OFF - path: " + path)
         }
     }
     return arr;
+  },
+
+  findSafestNeighbours: function(head, grid) {
+    var ret = [];
+    var x = head[0];
+    var y = head[1];
+    var board = grid;
+
+    // Check West
+    if (board[x - 1] && board[x - 1][y]) {
+        ret.push([(x-1), y ]);
+    }
+
+    // Check East
+    if (board[x + 1] && board[x + 1][y]) {
+        ret.push([(x+1), y ]);
+    }
+
+    // Check South
+    if (board[x] && board[x][y - 1]) {
+        ret.push([x, (y-1)]);
+    }
+
+    // Check North
+    if (board[x] && board[x][y + 1]) {
+        ret.push([x, (y+1)]);
+    }
+
+    return ret;
   },
 
   findSafestNeighbour: function(head, grid) {
