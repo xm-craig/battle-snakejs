@@ -218,19 +218,21 @@ var gameboard = {
           //  If previous state was DEFENSIVE and health above threshold --> continue DEFENSIVE
           gameState[gameId].state = 1;
           var corners = this.getSqCorners(mysnek, closestFood);
-console.log("*** *** *** corners: " + corners);
+console.log("*** DEF *** corners: " + corners);
           var nextDirection = this.getDefensiveMove(grid, mysnek, corners, closestSnake);
           // record the move for next time
-console.log("*** next move: " + nextDirection);
+console.log("*** DEF *** next move: " + nextDirection);
           gameState[gameId].move = nextDirection;
           return nextDirection;
-      } else if (state == 2 && mysnek_health > threshold) {
-          console.log("*** Still on the offensive");
+      } else if ((state == 2) && 
+		 (mysnek_health > threshold) && 
+		 (this.getDistance(closestSnake.coords[0], mysnek_head) < this.getDistance(mysnek_head, closestFood))) {
+console.log("*** OFF *** Still on the offensive");
           //  If previous state was OFFENSIVE and health above threshold --> continue OFFENSIVE
           gameState[gameId].state = 2;
           var nextDirection = this.getOffensiveMove(grid, mysnek, closestSnake);
           gameState[gameId].move = nextDirection;
-console.log("*** next move: " + nextDirection);
+console.log("*** OFF *** next move: " + nextDirection);
           return nextDirection;
       } else if (startDefensive) {
           //  If previous state was FEEDING start a DEFENSIVE play under the above conditions
@@ -263,7 +265,8 @@ console.log("*** OFF *** " + (this.getDistance(closestSnake.coords[0], mysnek_he
 console.log("*** OFF *** next move: " + nextDirection);
           return nextDirection;
       }
-      else if (_.size(safestPath) > 0) {
+
+      if (_.size(safestPath) > 0) {
           //  ALWAYS FEEDING
           //  UNLESS on defensive or the offensive
           //  If previous state was DEFENSIVE and health < threshold
@@ -390,9 +393,10 @@ console.log("*** next move: " + nextDirection);
   getOffensiveMove: function(grid, mysnake, closestSnake) {
       var myhead = mysnake['coords'][0];
       var target = closestSnake['coords'][0];
-      console.log("*** OFF - target: " + target)
+console.log("*** OFF - head: " + myhead)
+console.log("*** OFF - target: " + target)
       var path = astar.search(grid, myhead, target);
-      console.log("*** OFF - path: " + path)
+console.log("*** OFF - path: " + path)
       return this.getDirection(myhead, [path[0].x, path[0].y]);
   },
 
