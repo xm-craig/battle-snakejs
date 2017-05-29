@@ -348,7 +348,8 @@ console.log("*** next move: " + nextDirection);
       var direction = this.getSnakesDirection(snake);
 
       var traversedCorners = _.intersection(sqCorners, snake['coords']);
-      if (!traversedCorners) {
+      console.log("traversed: " + traversedCorners);
+      if (_.size(traversedCorners) == 0) {
           var target = this.findClosest(sqCorners, snakeHead);
           var path = astar.search(grid, myhead, target);
           console.log("heading for a corner: " + path);
