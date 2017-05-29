@@ -554,14 +554,27 @@ console.log("*** next move: " + nextDirection);
   },
 
   areSqCornersOnBoard: function(snake, food, width, height) {
+      var dead = false;
       var corners = this.getSqCorners(snake, food);
-      if (_.min(corners) < 0)
-	  return false;
-      if (_.max(corners, function(corner) {return corner[0]}) > width)
-	  return false;
-      if (_.max(corners, function(corner) {return corner[1]}) > height)
-	  return false;
-      return true;
+      corners.forEach(function(corner) {
+          dead =
+	      (corner[0] < 0) || 
+	      (corner[1] < 0) || 
+	      (corner[0] > width) ||
+	      (corner[1] > height);
+	  if (dead) return;
+      });
+      console.log("*** Square On Board: " + dead);
+      return dead;
+
+      // TODO - REDO This logic
+      //if (_.min(corners, function(corner) {return corner[0] < corner[1] ? corner[0] : corner[1]}) < 0)
+      //	  return false;
+      //if (_.max(corners, function(corner) {return corner[0]}) > width)
+      //	  return false;
+      //if (_.max(corners, function(corner) {return corner[1]}) > height)
+      //	  return false;
+      //return true;
   },
 
   // is N left of P
