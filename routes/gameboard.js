@@ -202,11 +202,13 @@ var gameboard = {
 
       //  OFFENSIVE MOVE
       //  If previous state was FEEDING
+      //  and closest snake is closer than closest food
       //  and closest snake position is two positions away
       //  and our snake is longer by two or more than the closest snake
       //  and health is above threshold
       var startOffensive = 
           (state == 0) &&
+	  (this.getDistance(closestSnake.coords[0], mysnek_head) < this.getDistance(mysnek_head, closestFood)) &&
           ((mysnek_len - this.getSnakeLen(closestSnake)) >= 2) &&
           (this.getDistance(closestSnake.coords[0], mysnek_head) <= 2);
 //console.log("*** get offensive: " + startOffensive);
@@ -232,32 +234,33 @@ console.log("*** next move: " + nextDirection);
           return nextDirection;
       } else if (startDefensive) {
           //  If previous state was FEEDING start a DEFENSIVE play under the above conditions
-      console.log("*** moves to defend: " + numberOfDefensiveMoves);
-      console.log("*** *** *** " + (state == 0));
-      console.log("*** *** *** " + (snakeCount > foodCount));
-      console.log("*** *** *** " + (_.size(safestPath) > 0));
-      console.log("*** *** *** " + (mysnek_health > smallestSnake.health_points));
-      console.log("*** *** *** onboard: " + this.areSqCornersOnBoard(mysnek, closestFood, data.width, data.height));
-      console.log("*** *** *** " + (numberOfDefensiveMoves < mysnek_health));
-      console.log("*** *** *** " + (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood)));
+      console.log("*** DEF *** " + numberOfDefensiveMoves);
+      console.log("*** DEF *** " + (state == 0));
+      console.log("*** DEF *** " + (snakeCount > foodCount));
+      console.log("*** DEF *** " + (_.size(safestPath) > 0));
+      console.log("*** DEF *** " + (mysnek_health > smallestSnake.health_points));
+      console.log("*** DEF *** " + this.areSqCornersOnBoard(mysnek, closestFood, data.width, data.height));
+      console.log("*** DEF *** " + (numberOfDefensiveMoves < mysnek_health));
+      console.log("*** DEF *** " + (numberOfDefensiveMoves < this.getDistance(closestSnake.coords[0], closestFood)));
           gameState[gameId].state = 1;
           var corners = this.getSqCorners(mysnek, closestFood);
-      console.log("*** *** *** corners: " + corners);
+      console.log("*** DEF *** corners: " + corners);
           var nextDirection = this.getDefensiveMove(grid, mysnek, corners, closestSnake);
           // record the move for next time
           gameState[gameId].move = nextDirection;
-console.log("*** next move: " + nextDirection);
+console.log("*** DEF *** next move: " + nextDirection);
           return nextDirection;
       } else if (startOffensive) {
           //  If previous state was FEEDING start an OFFENSIVE play under the above conditions
-console.log("*** *** *** " + (state == 0));
-console.log("*** *** *** " + ((mysnek_len - this.getSnakeLen(closestSnake)) >= 2));
-console.log("*** *** *** " + (this.getDistance(closestSnake.coords[0], mysnek_head) <= 2));
+console.log("*** OFF *** " + (state == 0));
+console.log("*** OFF *** " + (this.getDistance(closestSnake.coords[0], mysnek_head) < this.getDistance(mysnek_head, closestFood)));
+console.log("*** OFF *** " + ((mysnek_len - this.getSnakeLen(closestSnake)) >= 2));
+console.log("*** OFF *** " + (this.getDistance(closestSnake.coords[0], mysnek_head) <= 2));
 
           gameState[gameId].state = 2;
           var nextDirection = this.getOffensiveMove(grid, mysnek, closestSnake);
           gameState[gameId].move = nextDirection;
-console.log("*** next move: " + nextDirection);
+console.log("*** OFF *** next move: " + nextDirection);
           return nextDirection;
       }
       else if (_.size(safestPath) > 0) {
@@ -387,7 +390,9 @@ console.log("*** next move: " + nextDirection);
   getOffensiveMove: function(grid, mysnake, closestSnake) {
       var myhead = mysnake['coords'][0];
       var target = closestSnake['coords'][0];
+      console.log("*** OFF - target: " + target)
       var path = astar.search(grid, myhead, target);
+      console.log("*** OFF - path: " + path)
       return this.getDirection(myhead, [path[0].x, path[0].y]);
   },
 
