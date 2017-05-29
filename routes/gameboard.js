@@ -217,7 +217,7 @@ var gameboard = {
           gameState[gameId].state = 1;
           var corners = this.getSqCorners(mysnek, closestFood);
 console.log("*** *** *** corners: " + corners);
-          var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
+          var nextDirection = this.getDefensiveMove(grid, mysnek, corners, closestSnake);
           // record the move for next time
 console.log("*** next move: " + nextDirection);
           gameState[gameId].move = nextDirection;
@@ -351,7 +351,7 @@ console.log("*** next move: " + nextDirection);
       console.log("traversed: " + traversedCorners);
       if (_.size(traversedCorners) == 0) {
           var target = this.findClosest(sqCorners, snakeHead);
-          var path = astar.search(grid, myhead, target);
+          var path = astar.search(grid, snakeHead, target);
           console.log("heading for a corner: " + path);
           return this.getDirection(myhead, path[0]);
       }
