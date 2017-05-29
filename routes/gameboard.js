@@ -243,7 +243,7 @@ console.log("*** next move: " + nextDirection);
           gameState[gameId].state = 1;
           var corners = this.getSqCorners(mysnek, closestFood);
       console.log("*** *** *** corners: " + corners);
-          var nextDirection = this.getDefensiveMove(mysnek, corners, closestSnake);
+          var nextDirection = this.getDefensiveMove(grid, mysnek, corners, closestSnake);
           // record the move for next time
           gameState[gameId].move = nextDirection;
 console.log("*** next move: " + nextDirection);
@@ -343,7 +343,7 @@ console.log("*** next move: " + nextDirection);
   /**
    *  Get the move required to keep our snake in a defensive square formation around a food item
    */
-  getDefensiveMove: function(snake, sqCorners, closestSnake) {
+    getDefensiveMove: function(grid, snake, sqCorners, closestSnake) {
       var snakeHead = snake['coords'][0];
       var direction = this.getSnakesDirection(snake);
 
