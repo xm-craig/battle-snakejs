@@ -399,9 +399,9 @@ console.log("*** OFF - head: " + head)
       var closesttarget = this.findClosest(possibleMoves, head)
 console.log("*** OFF - target: " + closesttarget)
 
-      var path = astar.search(grid, head, target);
+      var path = astar.search(grid, head, closesttarget);
 console.log("*** OFF - path: " + path)
-      return this.getDirection(myhead, [path[0].x, path[0].y]);
+      return this.getDirection(head, [path[0].x, path[0].y]);
   },
 
 /**
