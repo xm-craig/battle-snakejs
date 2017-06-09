@@ -31,7 +31,7 @@ var gameboard = {
     // if the server was restarted in the middle of game play, we recreate the gameState
     if (!gameState[data.game_id])
       gameState[data.game_id] = {
-          "middle": [(data.width/2), (data.height/2)],
+          "middle": [Math.trunc(data.width/2), Math.trunc(data.height/2)],
           "taunt_count": 1,
           "state": 0,
           "move": "none"
@@ -98,7 +98,14 @@ var gameboard = {
           // save this for later
           tentatives.push(tentative);
           // avoid collisions with larger snakes that are closer
-          var dead = gameboard.collisonCheck(mysnek, otherSnakes, pellet);
+          // var dead = gameboard.collisonCheck(mysnek, otherSnakes, pellet);
+          var dead = false;
+          otherSnakes.forEach(function(enemy) {
+              if (path_length > gameboard.getDistance(enemy['coords'][0], food))
+                  dead = true;
+          });
+
+          console.log("**** DEAD **** : " + dead);
           if (dead)
               return;
 
@@ -109,7 +116,7 @@ var gameboard = {
       // if there are no paths to food pellets then head to the middle or chase our tail
       var despair = false;
       if (!path || !(_.size(path) > 0)) {
-          console.log('*** no path to any food so lets head for the middle' + gameState[gameId].middle);
+          console.log('*** no path to any food so lets head for the middle: ' + gameState[gameId].middle);
           path = astar.search(grid, mysnek_head, gameState[gameId].middle);
       }
       if (!path || !(_.size(path) > 0)) {
