@@ -100,6 +100,7 @@ var gameboard = {
           // avoid collisions with larger snakes that are closer
           // var dead = gameboard.collisonCheck(mysnek, otherSnakes, pellet);
           var dead = false;
+          var path_length = this.getDistance(mysnek_head, pellet);
           otherSnakes.forEach(function(enemy) {
               if (path_length > gameboard.getDistance(enemy['coords'][0], food))
                   dead = true;
