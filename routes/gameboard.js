@@ -82,7 +82,7 @@ var gameboard = {
       var otherSnakes = _.reject(snakes, function(snake) {return snake.name==mysnek.name;});
 
       // initialize the grid
-      var grid = this.initGame(req.body);
+      var grid = this.initGame(data);
 
       // search for shortest path to food
       var path = [];
