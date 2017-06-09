@@ -121,12 +121,14 @@ var gameboard = {
       if (!path || !(_.size(path) > 0)) {
           middle = this.findSafestNeighbours(gameState[gameId].middle, grid);
           console.log('*** no path to any food so lets head for the middle: ' + middle);
-          path = astar.search(grid, mysnek_head, middle[0]);
+          if (_.size(middle))
+              path = astar.search(grid, mysnek_head, middle[0]);
       }
       if (!path || !(_.size(path) > 0)) {
           console.log('*** no path to any food or the middle so lets chase our tail');
           tail = this.findSafestNeighbours(mysnek_coords[mysnek_coords.length-1], grid);
-          path = astar.search(grid, mysnek_head, tail[0]);
+          if (_.size(tail))
+              path = astar.search(grid, mysnek_head, tail[0]);
           despair = !path || !(_.size(path) > 0);
       }
 
