@@ -70,6 +70,7 @@ var gameboard = {
   },
 
   makeMove: function(data) {
+      var gameboard = this;
       var gameId = data['game_id'];
       var snakes = data['snakes'];
       var food = data['food'];
@@ -97,7 +98,7 @@ var gameboard = {
           // save this for later
           tentatives.push(tentative);
           // avoid collisions with larger snakes that are closer
-          var dead = this.collisonCheck(mysnek, otherSnakes, pellet);
+          var dead = gameboard.collisonCheck(mysnek, otherSnakes, pellet);
           if (dead)
               return;
 
