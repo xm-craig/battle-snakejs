@@ -139,9 +139,9 @@ var gameboard = {
           if (_.size(tentatives) > 1) {
               console.log("*** picking the second closest pellet to us *** ");
               path = tentatives[1];
-          } else if (_.size(tentatives) > 0) {
-              console.log("*** picking the closest pellet to us *** ");
-              path = tentatives[0];
+          //} else if (_.size(tentatives) > 0) {
+          //    console.log("*** picking the closest pellet to us *** ");
+          //    path = tentatives[0];
           } else {
               // if there are no potential food pellets then pick the first safest location
               console.log("*** picking the safest location *** ");
