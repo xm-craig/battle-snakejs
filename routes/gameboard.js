@@ -108,8 +108,8 @@ var gameboard = {
 
       // if there are no paths to food pellets then head to the middle or chase our tail
       var despair = false;
-      if (!path) {
-          console.log('*** no path to any food so lets head for the middle');
+      if (!path || !(_.size(path) > 0)) {
+          console.log('*** no path to any food so lets head for the middle' + gameState[gameId].middle);
           path = astar.search(grid, mysnek_head, gameState[gameId].middle);
       }
       if (!path || !(_.size(path) > 0)) {
