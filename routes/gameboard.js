@@ -101,7 +101,9 @@ var gameboard = {
           // var dead = gameboard.collisonCheck(mysnek, otherSnakes, pellet);
           var dead = false;
           var path_length = gameboard.getDistance(mysnek_head, pellet);
+          console.log("**** ME **** : " +path_length );
           otherSnakes.forEach(function(enemy) {
+              console.log("**** ENEMY **** : " + gameboard.getDistance(enemy['coords'][0], food) );
               if (path_length > gameboard.getDistance(enemy['coords'][0], food))
                   dead = true;
           });
