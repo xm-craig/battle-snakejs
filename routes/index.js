@@ -98,7 +98,7 @@ router.post('/move', function (req, res) {
     if (!req.body) return res.sendStatus(400);
 
     var gameId = req.body['game_id'];
-    var nextDirection = gameboard.newMove(req.body);
+    var nextDirection = gameboard.makeMove(req.body);
     //console.log(nextDirection);
     var anotherTaunt = gameboard.nextTaunt(gameId);
 
