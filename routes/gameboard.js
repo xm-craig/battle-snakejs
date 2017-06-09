@@ -119,12 +119,14 @@ var gameboard = {
       // if there are no paths to food pellets then head to the middle or chase our tail
       var despair = false;
       if (!path || !(_.size(path) > 0)) {
-          console.log('*** no path to any food so lets head for the middle: ' + gameState[gameId].middle);
-          path = astar.search(grid, mysnek_head, gameState[gameId].middle);
+          middle = this.findSafestNeighbour(gameState[gameId].middle, grid);
+          console.log('*** no path to any food so lets head for the middle: ' + middle);
+          path = astar.search(grid, mysnek_head, middle);
       }
       if (!path || !(_.size(path) > 0)) {
           console.log('*** no path to any food or the middle so lets chase our tail');
-          path = astar.search(grid, mysnek_head, mysnek_coords[mysnek_coords.length-1]);
+          tail = this.findSafestNeighbour(mysnek_coords[mysnek_coords.length-1], grid);
+          path = astar.search(grid, mysnek_head, tail);
           despair = !path || !(_.size(path) > 0);
       }
 
