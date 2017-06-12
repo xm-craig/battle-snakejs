@@ -129,6 +129,15 @@ var gameboard = {
           tail = this.findSafestNeighbours(mysnek_coords[mysnek_coords.length-1], grid);
           if (_.size(tail))
               path = astar.search(grid, mysnek_head, tail[0]);
+      }
+
+      if (!path || !(_.size(path) > 0)) {
+          console.log('*** no path to any food, the middle, or our tail, so lets head towards a corner');
+          var corners = this.findCorners(mysnek_head, grid);
+console.log("*** *** corners: " + corners);
+          // a sorted list of possible paths to each accessible corner
+          path = this.closestPathsToFood(grid, mysnek, corners, otherSnakes);
+console.log("*** *** safest path to corner: " + path);
           despair = !path || !(_.size(path) > 0);
       }
 
@@ -417,6 +426,20 @@ console.log("*** OFF - target: " + closesttarget)
       var path = astar.search(grid, head, closesttarget);
 console.log("*** OFF - path: " + path)
       return this.getDirection(head, [path[0].x, path[0].y]);
+  },
+
+  findCorners: function(head, grid) {
+    var gameboard = this;
+
+    var ret = [];
+    ret.push([0, 0]);
+    ret.push([_.size(grid)-1, 0]);
+    ret.push([_.size(grid)-1, _.size(grid[0])-1]);
+    ret.push([0, _.size(grid[0])-1]);
+
+    return _.sortBy(ret, function(corner) {
+      return gameboard.getDistance(corner, head);
+    });
   },
 
 /**
